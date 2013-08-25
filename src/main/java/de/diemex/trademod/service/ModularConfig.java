@@ -10,26 +10,25 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Modular configuration class that utilizes a ConfigNode enumeration as easy access and storage of configuration option
- * values.
+ * Modular configuration class that utilizes a ConfigNode enumeration as easy access and storage of configuration option values.
  *
  * @author Mitsugaru
  */
 @SuppressWarnings("SameParameterValue")
 public abstract class ModularConfig
 {
-    private final Plugin plugin;
+    protected Plugin plugin;
+
     /**
      * Cache of options for the config.
      */
-    protected final Map<ConfigNode, Object> OPTIONS = new ConcurrentHashMap<ConfigNode, Object>();
+    private final Map<ConfigNode, Object> OPTIONS = new ConcurrentHashMap<ConfigNode, Object>();
 
 
     /**
      * Constructor.
      *
-     * @param plugin
-     *         - plugin instance.
+     * @param plugin - plugin instance.
      */
     protected ModularConfig(Plugin plugin)
     {
@@ -40,8 +39,7 @@ public abstract class ModularConfig
     /**
      * This updates a configuration option from the file.
      *
-     * @param node
-     *         - ConfigNode to update.
+     * @param node - ConfigNode to update.
      */
     @SuppressWarnings("unchecked")
     protected void updateOption(final ConfigNode node, final ConfigurationSection config)
@@ -87,20 +85,12 @@ public abstract class ModularConfig
 
 
     /**
-     * Saves the config.
-     */
-    public abstract void save();
-
-
-    /**
      * Force set the value for the given configuration node.
      * <p/>
      * Note, there is no type checking with this method.
      *
-     * @param node
-     *         - ConfigNode path to use.
-     * @param value
-     *         - Value to use.
+     * @param node  - ConfigNode path to use.
+     * @param value - Value to use.
      */
     public void set(final ConfigNode node, final Object value)
     {
@@ -111,10 +101,8 @@ public abstract class ModularConfig
     /**
      * Set the given path for the given value.
      *
-     * @param path
-     *         - Path to use.
-     * @param value
-     *         - Value to use.
+     * @param path  - Path to use.
+     * @param value - Value to use.
      */
     protected abstract void set(final String path, final Object value);
 
@@ -122,8 +110,7 @@ public abstract class ModularConfig
     /**
      * Get the integer value of the node.
      *
-     * @param node
-     *         - Node to use.
+     * @param node - Node to use.
      *
      * @return Value of the node. Returns -1 if unknown.
      */
@@ -155,8 +142,7 @@ public abstract class ModularConfig
     /**
      * Get the string value of the node.
      *
-     * @param node
-     *         - Node to use.
+     * @param node - Node to use.
      *
      * @return Value of the node. Returns and empty string if unknown.
      */
@@ -186,8 +172,7 @@ public abstract class ModularConfig
     /**
      * Get the list value of the node.
      *
-     * @param node
-     *         - Node to use.
+     * @param node - Node to use.
      *
      * @return Value of the node. Returns an empty list if unknown.
      */
@@ -219,8 +204,7 @@ public abstract class ModularConfig
     /**
      * Get the double value of the node.
      *
-     * @param node
-     *         - Node to use.
+     * @param node - Node to use.
      *
      * @return Value of the node. Returns 0 if unknown.
      */
@@ -252,8 +236,7 @@ public abstract class ModularConfig
     /**
      * Get the boolean value of the node.
      *
-     * @param node
-     *         - Node to use.
+     * @param node - Node to use.
      *
      * @return Value of the node. Returns false if unknown.
      */
@@ -284,16 +267,14 @@ public abstract class ModularConfig
     /**
      * Update settings that can be changed on the fly.
      *
-     * @param config
-     *         - Main config to load from.
+     * @param config - Main config to load from.
      */
     public abstract void loadSettings(final ConfigurationSection config);
 
     /**
      * Load defaults.
      *
-     * @param config
-     *         - Main config to load to.
+     * @param config - Main config to load to.
      */
     public abstract void loadDefaults(final ConfigurationSection config);
 
@@ -302,4 +283,9 @@ public abstract class ModularConfig
      */
     public abstract void boundsCheck();
 
+    public abstract void close();
+
+    public abstract void load();
+
+    public abstract void save();
 }
