@@ -36,11 +36,6 @@ public interface ConfigNode
     public Object getDefaultValue();
 
     /**
-     * Get a value to disable this Node
-     */
-    public Object getValueToDisable();
-
-    /**
      * Variable Types.
      */
     public enum VarType
