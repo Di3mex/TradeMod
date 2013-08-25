@@ -1,8 +1,9 @@
-name: TradeMod
-main: de.diemex.trademod.TradeMod
-author: Koanga
-description: Utilizing a fake chest, players can use a simple GUI to trade items with one-another without the threat of being scammed.
-version: 1.8
+name: ${project.artifactId}
+main: ${project.mainclass}
+version: ${project.version}
+description: ${project.description}
+dev-url: ${project.url}
+authors: [Koanga, Diemex]
 softdepend: [Vault]
 commands:
     tm:
