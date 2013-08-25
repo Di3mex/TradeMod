@@ -1,4 +1,4 @@
-package trademod;
+package de.diemex.trademod;
 
 import java.util.ArrayList;
 

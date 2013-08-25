@@ -1,4 +1,4 @@
-package trademod;
+package de.diemex.trademod;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;

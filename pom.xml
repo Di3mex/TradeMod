@@ -13,7 +13,7 @@
     <!-- Properties -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.mainclass>trademod.TradeMod</project.mainclass>
+        <project.mainclass>de.diemex.trademod.TradeMod</project.mainclass>
         <!--Use a profile to overwrite this-->
         <outputdir>${project.build.outputDirectory}</outputdir>
         <mc-version>1.6.2</mc-version>

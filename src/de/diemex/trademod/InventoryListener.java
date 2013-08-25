@@ -1,4 +1,4 @@
-package trademod;
+package de.diemex.trademod;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

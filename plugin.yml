@@ -1,5 +1,5 @@
 name: TradeMod
-main: trademod.TradeMod
+main: de.diemex.trademod.TradeMod
 author: Koanga
 description: Utilizing a fake chest, players can use a simple GUI to trade items with one-another without the threat of being scammed.
 version: 1.8
