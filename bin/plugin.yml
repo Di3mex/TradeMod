@@ -1,0 +1,23 @@
+name: TradeMod
+main: trademod.TradeMod
+author: Koanga
+description: Utilizing a fake chest, players can use a simple GUI to trade items with one-another without the threat of being scammed.
+version: 1.8
+softdepend: [Vault]
+commands:
+    tm:
+       description: Basic "master" command for TradeMod. Type /tm help for more info.
+       usage: /tm [argument] *
+permissions:
+    trademod.cantrade:
+        description: If a player does not have this permission, or if it's set to false, they cannot trade nor use any commands.
+        default: true
+    trademod.currency:
+        description: If a player does not have this permission, or if it's set to false, they cannot use currency commands.
+        default: true
+    trademod.quickreopen:
+        description: If a player does not have this permission, or if it's set to false, they cannot right click to reopen the trade window.
+        default: true
+    trademod.rightclickrequest:
+        description: If a player does not have this permission, or if it's set to false, they cannot right click, while sneaking, to request a player to trade.
+        default: true
