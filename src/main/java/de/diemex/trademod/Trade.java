@@ -17,27 +17,29 @@ public class Trade
 
     public TradePlayer requester = null;
     public TradePlayer requested = null;
+
     public ArrayList<ItemStack> requesterItems = new ArrayList<ItemStack>();
     public ArrayList<ItemStack> requestedItems = new ArrayList<ItemStack>();
     private ArrayList<ItemStack> requesterOvf = new ArrayList<ItemStack>();
     private ArrayList<ItemStack> requestedOvf = new ArrayList<ItemStack>();
+
     public double requestedCur = 0;
     public double requesterCur = 0;
-    // private ArrayList<ItemStack> allItems = new ArrayList<ItemStack>();
+
     private Inventory tradeI = null;
     private ScoreboardHandler sh = null;
-    TradeMod tm;
+    TradeMod plugin;
 
 
-    public Trade(TradePlayer p1, TradePlayer p2, TradeMod trm)
+    public Trade(TradePlayer p1, TradePlayer p2, TradeMod plugin)
     {
-        tm = trm;
+        this.plugin = plugin;
         requester = p1;
         requested = p2;
         TradeMod.trades.add(this);
         if (TradeMod.economy != null)
         {
-            if (tm.getCFG().getBoolean(RootNode.SCOREBOARD_CURR))
+            if (this.plugin.getCFG().getBoolean(RootNode.SCOREBOARD_CURR))
             {
                 sh = new ScoreboardHandler(p1, p2);
             }
@@ -47,40 +49,52 @@ public class Trade
 
     public void beginTrade()
     {
-        tradeI = tm.getServer().createInventory(null, 54, "Trade Screen");
+        tradeI = plugin.getServer().createInventory(null, 54, "Trade Screen");
+
         requester.getPlayer().openInventory(tradeI);
         requested.getPlayer().openInventory(tradeI);
+
         requester.setOtherPlayer(requested);
         requested.setOtherPlayer(requester);
+
         requester.sendMessage("You have the top portion of the screen.");
         requested.sendMessage("You have the bottom portion of the screen.");
-        requester.canSlot = 0;
-        requester.accSlot = 1;
-        requested.canSlot = 53;
-        requested.accSlot = 52;
+
+
+        //Bounds for bottom/top part of the trade screen
         requester.minSlot = 2;
         requested.minSlot = 26;
         requester.maxSlot = 27;
         requested.maxSlot = 51;
-        requester.curSlot = 2;
-        requested.curSlot = 51;
+
+        //CANCEL Buttons
         ItemStack redWool = new ItemStack(35, 1, (short) 14);
-        ItemStack greenWool = new ItemStack(35, 1, (short) 5);
-        ItemStack emerald = new ItemStack(388, 1);
         ItemMeta rM = redWool.getItemMeta();
-        ItemMeta gW = greenWool.getItemMeta();
-        ItemMeta e = emerald.getItemMeta();
         rM.setDisplayName(ChatColor.RED + "" + ChatColor.ITALIC + "Cancel");
-        gW.setDisplayName(ChatColor.GREEN + "" + ChatColor.ITALIC + "Confirm");
-        e.setDisplayName(ChatColor.GOLD + "" + ChatColor.ITALIC + "Add/Remove Currency");
         redWool.setItemMeta(rM);
-        greenWool.setItemMeta(gW);
-        emerald.setItemMeta(e);
+        requester.canSlot = 0;
         tradeI.setItem(0, redWool);
-        tradeI.setItem(1, greenWool);
-        tradeI.setItem(2, emerald);
+        requested.canSlot = 53;
         tradeI.setItem(53, redWool);
+
+        //CONFIRM Buttons
+        ItemStack greenWool = new ItemStack(35, 1, (short) 5);
+        ItemMeta gW = greenWool.getItemMeta();
+        gW.setDisplayName(ChatColor.GREEN + "" + ChatColor.ITALIC + "Confirm");
+        greenWool.setItemMeta(gW);
+        requester.accSlot = 1;
+        tradeI.setItem(1, greenWool);
+        requested.accSlot = 52;
         tradeI.setItem(52, greenWool);
+
+        //CURRENCY Buttons
+        ItemStack emerald = new ItemStack(388, 1);
+        ItemMeta e = emerald.getItemMeta();
+        e.setDisplayName(ChatColor.GOLD + "" + ChatColor.ITALIC + "Add/Remove Currency");
+        emerald.setItemMeta(e);
+        requester.curSlot = 2;
+        tradeI.setItem(2, emerald);
+        requested.curSlot = 51;
         tradeI.setItem(51, emerald);
     }
 
@@ -91,6 +105,7 @@ public class Trade
         {
             if (amount > 0)
             {
+                //TODO one validation method and a message with regex placeholders
                 if (p.equals(requested))
                 {
                     if (requested.getTrade().requester.hasConfirmed())
@@ -197,9 +212,9 @@ public class Trade
     {
         try
         {
-            Inventory i = tm.getServer().createInventory(null, 36);
+            Inventory i = plugin.getServer().createInventory(null, 36);
             i.setContents(requester.getPlayer().getInventory().getContents());
-            Inventory q = tm.getServer().createInventory(null, 36);
+            Inventory q = plugin.getServer().createInventory(null, 36);
             q.setContents(requested.getPlayer().getInventory().getContents());
             for (int a = requested.minSlot + 1; a < requested.maxSlot; a++)
             {

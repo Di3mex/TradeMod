@@ -13,32 +13,34 @@ import java.util.ArrayList;
 
 public class TradePlayer
 {
-
+    private TradeMod plugin = null;
     public boolean inTrade = false;
-    private Player player = null;
+    private String playerName = null;
+
     private TradePlayer requesterPlayer = null;
     private TradePlayer requestedPlayer = null;
+    private TradePlayer otherPlayer = null;
+
     public Trade trade = null;
+    //TODO remove the static bullshit
     public static ArrayList<TradePlayer> players = new ArrayList<TradePlayer>();
     public Inventory tradeInv = null;
-    private TradeMod trm = null;
     public int maxSlot = -1;
     public int minSlot = -1;
     public int accSlot = -1;
     public int canSlot = -1;
+
     public int curSlot = -1;
     private boolean confirmed = false;
-    private TradePlayer otherPlayer = null;
     private boolean modCurrency = false;
-    private int w = -1;
+    private int taskId = -1;
 
 
-    public TradePlayer(TradeMod tm, Player p)
+    public TradePlayer(TradeMod tm, Player player)
     {
-        player = p;
+        playerName = player.getName();
         players.add(this);
-        trm = tm;
-        // TODO Auto-generated constructor stub
+        plugin = tm;
     }
 
 
@@ -48,7 +50,7 @@ public class TradePlayer
         {
             requestedPlayer = oP;
             oP.requesterPlayer = this;
-            timeRequest(trm.getCFG().getInt(RootNode.TIMEOUT));
+            timeRequest(plugin.getCFG().getInt(RootNode.TIMEOUT));
             return true;
         }
         return false;
@@ -57,7 +59,8 @@ public class TradePlayer
 
     public void openTrade()
     {
-        player.openInventory(trade.getTradeInventory());
+        //TODO test if player logs out etc
+        plugin.getServer().getPlayer(playerName).openInventory(trade.getTradeInventory());
     }
 
 
@@ -67,7 +70,7 @@ public class TradePlayer
         {
             if (TradeMod.economy != null)
             {
-                double bal = TradeMod.economy.getBalance(player.getName());
+                double bal = TradeMod.economy.getBalance(playerName);
                 double amount = 0;
                 if (bal > 0)
                 {
@@ -160,16 +163,16 @@ public class TradePlayer
                 if (slot == curSlot)
                 {
                     tL.logClicks(getName() + " clicked currency slot.");
-                    if (player.hasPermission("trademod.currency"))
+                    if (plugin.getServer().getPlayer(playerName).hasPermission("trademod.currency"))
                     {
                         if (!hasConfirmed())
                         {
                             closeTrade();
                             sendMessage("You may now type the amount of currency you would like to remove or add to the trade.");
                             sendMessage("I.E. -1000 is a removal of 1000 currency, while 1000 is an addition of 1000 currency.");
-                            sendMessage("After " + trm.getCFG().getInt(RootNode.CURRENCY_TIMEOUT) + " seconds, the trade will resume. You can also re-open the trade window to manually cancel this.");
+                            sendMessage("After " + plugin.getCFG().getInt(RootNode.CURRENCY_TIMEOUT) + " seconds, the trade will resume. You can also re-open the trade window to manually cancel this.");
                             modCurrency = true;
-                            currencyModifyTimer(trm.getCFG().getInt(RootNode.CURRENCY_TIMEOUT));
+                            currencyModifyTimer(plugin.getCFG().getInt(RootNode.CURRENCY_TIMEOUT));
                         } else
                         {
                             sendMessage("Un-confirm the trade before trying to make changes!");
@@ -240,7 +243,7 @@ public class TradePlayer
 
     public Player getPlayer()
     {
-        return player;
+        return plugin.getServer().getPlayer(playerName);
     }
 
 
@@ -261,19 +264,20 @@ public class TradePlayer
         modCurrency = false;
         sendMessage("By re-opening the trade window, you have canceled the request to modify you offered currency.");
         sendMessage("You can click on the emerald to modify currency once more.");
-        trm.getServer().getScheduler().cancelTask(w);
+        plugin.getServer().getScheduler().cancelTask(taskId);
     }
 
 
     public void updateScreen()
     {
-        trm.getServer().getScheduler().scheduleSyncDelayedTask(trm, new Runnable()
+        //TODO this is actually hardly ever needed, something must be going wrong here
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
         {
             @SuppressWarnings("deprecation")
             @Override
             public void run()
             {
-                player.updateInventory();
+                plugin.getServer().getPlayer(playerName).updateInventory();
             }
         }, 3);
     }
@@ -281,12 +285,12 @@ public class TradePlayer
 
     public void closeTrade()
     {
-        trm.getServer().getScheduler().scheduleSyncDelayedTask(trm, new Runnable()
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
         {
             @Override
             public void run()
             {
-                player.closeInventory();
+                plugin.getServer().getPlayer(playerName).closeInventory();
             }
         });
     }
@@ -295,7 +299,7 @@ public class TradePlayer
     public void currencyModifyTimer(int seconds)
     {
         long s = seconds * 20;
-        trm.getServer().getScheduler().scheduleSyncDelayedTask(trm, new Runnable()
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
         {
             @Override
             public void run()
@@ -304,7 +308,7 @@ public class TradePlayer
                 {
                     modCurrency = false;
                     sendMessage("The trade will now be resumed.");
-                    player.openInventory(trade.getTradeInventory());
+                    plugin.getServer().getPlayer(playerName).openInventory(trade.getTradeInventory());
                 }
             }
         }, s);
@@ -365,7 +369,7 @@ public class TradePlayer
         try
         {
             long s = seconds * 20;
-            w = trm.getServer().getScheduler().scheduleSyncDelayedTask(trm, new Runnable()
+            taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
             { //obtain task id so we can cancel it later on if need be.
                 @Override
                 public void run()
@@ -390,7 +394,7 @@ public class TradePlayer
                 oP.requestedPlayer = null;
                 inTrade = true;
                 oP.inTrade = true;
-                trade = new Trade(oP, this, trm);
+                trade = new Trade(oP, this, plugin);
                 oP.trade = trade;
                 trade.beginTrade();
             }
@@ -452,13 +456,13 @@ public class TradePlayer
 
     public String getName()
     {
-        return player.getName();
+        return playerName;
     }
 
 
     public void sendMessage(String msg)
     {
-        player.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + msg);
+        plugin.getServer().getPlayer(playerName).sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + msg);
     }
 
 
@@ -529,16 +533,16 @@ public class TradePlayer
     }
 
 
-    public static void removePlayer(TradePlayer p)
+    public static void removePlayer(TradePlayer player)
     {
-        players.remove(p);
-        p = null;
+        players.remove(player);
+        player = null;
     }
 
 
-    public static TradePlayer getTradePlayer(Player p)
+    public static TradePlayer getTradePlayer(Player player)
     {
-        return getTradePlayer(p.getName());
+        return getTradePlayer(player.getName());
     }
 
 
@@ -548,7 +552,7 @@ public class TradePlayer
         {
             for (TradePlayer p : players)
             {
-                if (p.player.getName().equalsIgnoreCase(name))
+                if (p.playerName.equalsIgnoreCase(name))
                 {
                     return p;
                 }
@@ -556,5 +560,4 @@ public class TradePlayer
         }
         return null;
     }
-
 }

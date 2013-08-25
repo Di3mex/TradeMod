@@ -22,8 +22,10 @@ public class TradeMod extends JavaPlugin
     private RootConfig CFG;
     private PlayerListener pl = new PlayerListener(this);
     private InventoryListener il = new InventoryListener();
+    //TODO remove this static "thing"
     public static Economy economy = null;
     private Logger log;
+    //TODO remove this static "thing" too
     public static ArrayList<Trade> trades = new ArrayList<Trade>();
 
 
@@ -32,18 +34,10 @@ public class TradeMod extends JavaPlugin
     {
         CFG = new RootConfig(this);
         log = this.getLogger();
-        log.info("TradeMod is enabled.");
         PluginManager manager = this.getServer().getPluginManager();
         manager.registerEvents(pl, this);
         manager.registerEvents(il, this);
         setupEconomy();
-    }
-
-
-    @Override
-    public void onDisable()
-    {
-        log.info("TradeMod has been disabled (?).");
     }
 
 
@@ -401,8 +395,6 @@ public class TradeMod extends JavaPlugin
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "In a trade I can re-open the window by right clicking the other person: " + Boolean.toString(cmdSender.hasPermission("trademod.quickreopen")));
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can request another person to trade by right-clicking them while sneaking: " + Boolean.toString(cmdSender.hasPermission("trademod.rightclickrequest")));
                     }
-                    //TradeLogger tL = new TradeLogger();
-                    //tL.logCmds("[player]: " + cmdSender.getName() + " [commandarg]: " + command);
                 }
             } catch (Exception e)
             {

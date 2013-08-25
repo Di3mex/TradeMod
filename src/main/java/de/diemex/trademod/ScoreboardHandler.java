@@ -6,34 +6,38 @@ import org.bukkit.scoreboard.*;
 
 public class ScoreboardHandler
 {
-    private TradePlayer p1 = null;
-    private TradePlayer p2 = null;
+    private TradePlayer tradePlayer1 = null;
+    private TradePlayer tradePlayer2 = null;
     private ScoreboardManager manager = null;
-    private Scoreboard sb = null;
-    private Score a1 = null;
-    private Score a2 = null;
-    private Objective objective = null;
+    private Scoreboard scoreboard = null;
+    private Score score1 = null;
+    private Score score2 = null;
     private Scoreboard oldBoard = null;
     private Scoreboard oldBoard2 = null;
 
 
-    public ScoreboardHandler(TradePlayer p1, TradePlayer p2)
+    public ScoreboardHandler(TradePlayer tradePlayer1, TradePlayer tradePlayer2)
     {
-        this.p1 = p1;
-        this.p2 = p2;
+        this.tradePlayer1 = tradePlayer1;
+        this.tradePlayer2 = tradePlayer2;
+
         manager = Bukkit.getScoreboardManager();
-        sb = manager.getNewScoreboard();
-        oldBoard = (p1.getPlayer().getScoreboard() == null) ? manager.getNewScoreboard() : p1.getPlayer().getScoreboard();
-        oldBoard2 = (p2.getPlayer().getScoreboard() == null) ? manager.getNewScoreboard() : p2.getPlayer().getScoreboard();
-        objective = sb.registerNewObjective("Offered Currency", "dummy");
+        scoreboard = manager.getNewScoreboard();
+
+        oldBoard = (tradePlayer1.getPlayer().getScoreboard() == null) ? manager.getNewScoreboard() : tradePlayer1.getPlayer().getScoreboard();
+        oldBoard2 = (tradePlayer2.getPlayer().getScoreboard() == null) ? manager.getNewScoreboard() : tradePlayer2.getPlayer().getScoreboard();
+
+        Objective objective = scoreboard.registerNewObjective("Offered Currency", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName("Offered Currency");
-        a1 = objective.getScore(Bukkit.getOfflinePlayer(p1.getName()));
-        a2 = objective.getScore(Bukkit.getOfflinePlayer(p2.getName()));
-        a1.setScore(0);
-        a2.setScore(0);
-        p1.getPlayer().setScoreboard(sb);
-        p2.getPlayer().setScoreboard(sb);
+
+        score1 = objective.getScore(Bukkit.getOfflinePlayer(tradePlayer1.getName()));
+        score2 = objective.getScore(Bukkit.getOfflinePlayer(tradePlayer2.getName()));
+        score1.setScore(0);
+        score2.setScore(0);
+
+        tradePlayer1.getPlayer().setScoreboard(scoreboard);
+        tradePlayer2.getPlayer().setScoreboard(scoreboard);
     }
 
 
@@ -41,21 +45,18 @@ public class ScoreboardHandler
     {
         if (p != null)
         {
-            if (p.equals(p1))
-            {
-                a1.setScore(d);
-            } else
-            {
-                a2.setScore(d);
-            }
+            if (p.equals(tradePlayer1))
+                score1.setScore(d);
+            else
+                score2.setScore(d);
         }
     }
 
 
     public void closeBoard()
     {
-        p1.getPlayer().setScoreboard(oldBoard);
-        p2.getPlayer().setScoreboard(oldBoard2);
-        sb = null;
+        tradePlayer1.getPlayer().setScoreboard(oldBoard);
+        tradePlayer2.getPlayer().setScoreboard(oldBoard2);
+        scoreboard = null;
     }
 }

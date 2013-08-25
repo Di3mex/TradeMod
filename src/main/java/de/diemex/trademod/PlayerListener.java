@@ -17,28 +17,28 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class PlayerListener implements Listener
 {
 
-    private TradeMod np = null;
+    private TradeMod plugin = null;
 
 
     public PlayerListener(TradeMod main)
     {
-        np = main;
+        plugin = main;
     }
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerChat(AsyncPlayerChatEvent e)
+    public void onPlayerChat(AsyncPlayerChatEvent event)
     {
-        Player p = e.getPlayer();
-        TradePlayer tP = TradePlayer.getTradePlayer(p);
-        if (tP != null)
+        Player player = event.getPlayer();
+        TradePlayer tradePlayer = TradePlayer.getTradePlayer(player);
+        if (tradePlayer != null)
         {
-            if (tP.isInTrade())
+            if (tradePlayer.isInTrade())
             {
-                if (tP.isModifyingCurrency())
+                if (tradePlayer.isModifyingCurrency())
                 {
-                    tP.handleChatEvent(e.getMessage());
-                    e.setCancelled(true);
+                    tradePlayer.handleChatEvent(event.getMessage());
+                    event.setCancelled(true);
                 }
             }
         }
@@ -46,20 +46,20 @@ public class PlayerListener implements Listener
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerLogout(PlayerQuitEvent e)
+    public void onPlayerLogout(PlayerQuitEvent event)
     {
-        Player p = e.getPlayer();
-        TradePlayer tP = TradePlayer.getTradePlayer(p);
-        if (tP != null)
+        Player player = event.getPlayer();
+        TradePlayer tradePlayer = TradePlayer.getTradePlayer(player);
+        if (tradePlayer != null)
         {
-            if (tP.isInTrade())
+            if (tradePlayer.isInTrade())
             {
-                tP.cancelTrade(tP, "Logged out.");
+                tradePlayer.cancelTrade(tradePlayer, "Logged out.");
             } else
             {
-                if (tP.isRequested())
+                if (tradePlayer.isRequested())
                 {
-                    tP.cancelRequest(true, "Logged out.");
+                    tradePlayer.cancelRequest(true, "Logged out.");
                 }
             }
         }
@@ -67,73 +67,73 @@ public class PlayerListener implements Listener
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerInteract(PlayerInteractEntityEvent e)
+    public void onPlayerInteract(PlayerInteractEntityEvent event)
     {
-        Player p = e.getPlayer();
-        TradePlayer tP = TradePlayer.getTradePlayer(p);
-        if (e.getRightClicked() instanceof Player)
+        Player player = event.getPlayer();
+        TradePlayer tradePlayer = TradePlayer.getTradePlayer(player);
+        if (event.getRightClicked() instanceof Player)
         {
-            Player rP = (Player) e.getRightClicked();
-            if (p.getItemInHand().getTypeId() == 0)
+            Player otherPlayer = (Player) event.getRightClicked();
+            if (player.getItemInHand().getTypeId() == 0)
             { //is unarmed
-                if (tP != null)
+                if (tradePlayer != null)
                 {
-                    TradePlayer rTP = TradePlayer.getTradePlayer(rP);
-                    if (tP.isInTrade())
+                    TradePlayer otherTradePlayer = TradePlayer.getTradePlayer(otherPlayer);
+                    if (tradePlayer.isInTrade())
                     {
-                        if (tP.getPlayer().hasPermission("trademod.quickreopen"))
+                        if (tradePlayer.getPlayer().hasPermission("trademod.quickreopen"))
                         {
-                            if (tP.getOtherPlayer() == rTP)
+                            if (tradePlayer.getOtherPlayer() == otherTradePlayer)
                             {
-                                if (np.getCFG().getBoolean(RootNode.RIGHT_CLICK_REOPEN))
+                                if (plugin.getCFG().getBoolean(RootNode.RIGHT_CLICK_REOPEN))
                                 {
-                                    tP.getPlayer().openInventory(tP.getTrade().getTradeInventory());
+                                    tradePlayer.getPlayer().openInventory(tradePlayer.getTrade().getTradeInventory());
                                 }
                             }
                         }
-                    } else if (tP.isRequested())
+                    } else if (tradePlayer.isRequested())
                     {
-                        if (p.isSneaking())
+                        if (player.isSneaking())
                         {
-                            tP.acceptRequest(rTP);
+                            tradePlayer.acceptRequest(otherTradePlayer);
                         }
                     }
                 } else
                 {
-                    if (p.isSneaking())
+                    if (player.isSneaking())
                     {
-                        if (np.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
+                        if (plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                         {
-                            if (p.hasPermission("trademod.rightclickrequest"))
+                            if (player.hasPermission("trademod.rightclickrequest"))
                             {
-                                if (!np.getCFG().getBoolean(RootNode.CREATIVE_TRADING))
+                                if (!plugin.getCFG().getBoolean(RootNode.CREATIVE_TRADING))
                                 {
-                                    if (p.getGameMode() != GameMode.CREATIVE && rP.getGameMode() != GameMode.CREATIVE)
+                                    if (player.getGameMode() != GameMode.CREATIVE && otherPlayer.getGameMode() != GameMode.CREATIVE)
                                     {
-                                        TradePlayer requested = new TradePlayer(np, rP);
-                                        TradePlayer requester = new TradePlayer(np, p);
+                                        TradePlayer requested = new TradePlayer(plugin, otherPlayer);
+                                        TradePlayer requester = new TradePlayer(plugin, player);
                                         if (requester.requestTrade(requested))
                                         {
-                                            requested.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
-                                            if (rP.hasPermission("trademod.rightclickrequest") && np.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
+                                            requested.sendMessage(player.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
+                                            if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                 requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                            requester.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + np.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
+                                            requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
                                         }
                                     } else
                                     {
-                                        p.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Creative trading is currently disabled. Currently, one of the players involved is in the Creative game mode. Switch to Survival to commence the trade.");
-                                        rP.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Creative trading is currently disabled. Currently, one of the players involved is in the Creative game mode. Switch to Survival to commence the trade.");
+                                        player.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Creative trading is currently disabled. Currently, one of the players involved is in the Creative game mode. Switch to Survival to commence the trade.");
+                                        otherPlayer.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Creative trading is currently disabled. Currently, one of the players involved is in the Creative game mode. Switch to Survival to commence the trade.");
                                     }
                                 } else
                                 {
-                                    TradePlayer requested = new TradePlayer(np, rP);
-                                    TradePlayer requester = new TradePlayer(np, p);
+                                    TradePlayer requested = new TradePlayer(plugin, otherPlayer);
+                                    TradePlayer requester = new TradePlayer(plugin, player);
                                     if (requester.requestTrade(requested))
                                     {
-                                        requested.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
-                                        if (rP.hasPermission("trademod.rightclickrequest") && np.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
+                                        requested.sendMessage(player.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
+                                        if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                             requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                        requester.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + np.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
+                                        requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
                                     }
                                 }
                             }
@@ -146,22 +146,22 @@ public class PlayerListener implements Listener
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerDeath(PlayerDeathEvent e)
+    public void onPlayerDeath(PlayerDeathEvent event)
     {
-        Player p = e.getEntity();
-        if (p != null)
+        Player player = event.getEntity();
+        if (player != null)
         {
-            TradePlayer tP = TradePlayer.getTradePlayer(p);
-            if (tP != null)
+            TradePlayer tradePlayer = TradePlayer.getTradePlayer(player);
+            if (tradePlayer != null)
             {
-                if (tP.isInTrade())
+                if (tradePlayer.isInTrade())
                 {
-                    tP.getTrade().onDeath(tP);
+                    tradePlayer.getTrade().onDeath(tradePlayer);
                 } else
                 {
-                    if (tP.isRequested())
+                    if (tradePlayer.isRequested())
                     {
-                        tP.cancelRequest(true, "Died.");
+                        tradePlayer.cancelRequest(true, "Died.");
                     }
                 }
             }
@@ -170,21 +170,21 @@ public class PlayerListener implements Listener
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerMove(PlayerMoveEvent e)
+    public void onPlayerMove(PlayerMoveEvent event)
     {
-        Player p = e.getPlayer();
-        if (p != null)
+        Player player = event.getPlayer();
+        if (player != null)
         {
-            TradePlayer tP = TradePlayer.getTradePlayer(p);
-            if (tP != null)
+            TradePlayer tradePlayer = TradePlayer.getTradePlayer(player);
+            if (tradePlayer != null)
             {
-                if (tP.isInTrade())
+                if (tradePlayer.isInTrade())
                 {
-                    Trade t = tP.getTrade();
-                    int radius = np.getCFG().getInt(RootNode.MAX_DISTANCE);
-                    if (!np.withinRadius(t.requested.getPlayer().getLocation(), t.requester.getPlayer().getLocation(), radius))
+                    Trade trade = tradePlayer.getTrade();
+                    int radius = plugin.getCFG().getInt(RootNode.MAX_DISTANCE);
+                    if (!plugin.withinRadius(trade.requested.getPlayer().getLocation(), trade.requester.getPlayer().getLocation(), radius))
                     {
-                        tP.cancelTrade(tP, "Went out of range.");
+                        tradePlayer.cancelTrade(tradePlayer, "Went out of range.");
                     }
                 }
             }
