@@ -1,6 +1,7 @@
 package de.diemex.trademod;
 
 
+import de.diemex.trademod.config.RootNode;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -47,7 +48,7 @@ public class TradePlayer
         {
             requestedPlayer = oP;
             oP.requesterPlayer = this;
-            timeRequest(ConfigLoader.getTimeout());
+            timeRequest(trm.getCFG().getInt(RootNode.TIMEOUT));
             return true;
         }
         return false;
@@ -136,7 +137,8 @@ public class TradePlayer
                             oP.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
                         }
                     }
-                    if (!ConfigLoader.canTrade(e.getCursor()))
+                    //TODO IMPLEMENT blacklist configuration
+                    if (!false)
                     {
                         sendMessage("This item is untradable!");
                         e.setCancelled(true);
@@ -165,9 +167,9 @@ public class TradePlayer
                             closeTrade();
                             sendMessage("You may now type the amount of currency you would like to remove or add to the trade.");
                             sendMessage("I.E. -1000 is a removal of 1000 currency, while 1000 is an addition of 1000 currency.");
-                            sendMessage("After " + ConfigLoader.getCurTimeout() + " seconds, the trade will resume. You can also re-open the trade window to manually cancel this.");
+                            sendMessage("After " + trm.getCFG().getInt(RootNode.CURRENCY_TIMEOUT) + " seconds, the trade will resume. You can also re-open the trade window to manually cancel this.");
                             modCurrency = true;
-                            currencyModifyTimer(ConfigLoader.getCurTimeout());
+                            currencyModifyTimer(trm.getCFG().getInt(RootNode.CURRENCY_TIMEOUT));
                         } else
                         {
                             sendMessage("Un-confirm the trade before trying to make changes!");

@@ -1,6 +1,7 @@
 package de.diemex.trademod;
 
 
+import de.diemex.trademod.config.RootNode;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -36,7 +37,7 @@ public class Trade
         TradeMod.trades.add(this);
         if (TradeMod.economy != null)
         {
-            if (ConfigLoader.scoreboardEnabled())
+            if (tm.getCFG().getBoolean(RootNode.SCOREBOARD_CURR))
             {
                 sh = new ScoreboardHandler(p1, p2);
             }

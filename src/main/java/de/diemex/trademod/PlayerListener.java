@@ -1,6 +1,7 @@
 package de.diemex.trademod;
 
 
+import de.diemex.trademod.config.RootNode;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -84,7 +85,7 @@ public class PlayerListener implements Listener
                         {
                             if (tP.getOtherPlayer() == rTP)
                             {
-                                if (ConfigLoader.getReopenEnabled())
+                                if (np.getCFG().getBoolean(RootNode.RIGHT_CLICK_REOPEN))
                                 {
                                     tP.getPlayer().openInventory(tP.getTrade().getTradeInventory());
                                 }
@@ -101,11 +102,11 @@ public class PlayerListener implements Listener
                 {
                     if (p.isSneaking())
                     {
-                        if (ConfigLoader.getRequestEnabled())
+                        if (np.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                         {
                             if (p.hasPermission("trademod.rightclickrequest"))
                             {
-                                if (!ConfigLoader.creativeToSurv())
+                                if (!np.getCFG().getBoolean(RootNode.CREATIVE_TRADING))
                                 {
                                     if (p.getGameMode() != GameMode.CREATIVE && rP.getGameMode() != GameMode.CREATIVE)
                                     {
@@ -114,9 +115,9 @@ public class PlayerListener implements Listener
                                         if (requester.requestTrade(requested))
                                         {
                                             requested.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
-                                            if (rP.hasPermission("trademod.rightclickrequest") && ConfigLoader.getRequestEnabled())
+                                            if (rP.hasPermission("trademod.rightclickrequest") && np.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                 requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                            requester.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + ConfigLoader.getTimeout() + " seconds");
+                                            requester.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + np.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
                                         }
                                     } else
                                     {
@@ -130,9 +131,9 @@ public class PlayerListener implements Listener
                                     if (requester.requestTrade(requested))
                                     {
                                         requested.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
-                                        if (rP.hasPermission("trademod.rightclickrequest") && ConfigLoader.getRequestEnabled())
+                                        if (rP.hasPermission("trademod.rightclickrequest") && np.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                             requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                        requester.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + ConfigLoader.getTimeout() + " seconds");
+                                        requester.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + np.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
                                     }
                                 }
                             }
@@ -180,7 +181,7 @@ public class PlayerListener implements Listener
                 if (tP.isInTrade())
                 {
                     Trade t = tP.getTrade();
-                    int radius = ConfigLoader.getMaxDistance();
+                    int radius = np.getCFG().getInt(RootNode.MAX_DISTANCE);
                     if (!np.withinRadius(t.requested.getPlayer().getLocation(), t.requester.getPlayer().getLocation(), radius))
                     {
                         tP.cancelTrade(tP, "Went out of range.");

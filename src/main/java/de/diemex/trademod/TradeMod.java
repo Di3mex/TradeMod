@@ -1,6 +1,8 @@
 package de.diemex.trademod;
 
 
+import de.diemex.trademod.config.RootConfig;
+import de.diemex.trademod.config.RootNode;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -17,7 +19,7 @@ import java.util.logging.Logger;
 
 public class TradeMod extends JavaPlugin
 {
-    public ConfigLoader cfg = new ConfigLoader();
+    private RootConfig CFG;
     private PlayerListener pl = new PlayerListener(this);
     private InventoryListener il = new InventoryListener();
     public static Economy economy = null;
@@ -28,6 +30,7 @@ public class TradeMod extends JavaPlugin
     @Override
     public void onEnable()
     {
+        CFG = new RootConfig(this);
         log = this.getLogger();
         log.info("TradeMod is enabled.");
         PluginManager manager = this.getServer().getPluginManager();
@@ -118,7 +121,7 @@ public class TradeMod extends JavaPlugin
                             Player requestedPlayer = this.getServer().getPlayerExact(args[1]);
                             if (requestedPlayer != null)
                             {
-                                int radius = ConfigLoader.getMaxDistance();
+                                int radius = CFG.getInt(RootNode.MAX_DISTANCE);
                                 if (!cmdSender.equals(requestedPlayer))
                                 {
                                     if (TradePlayer.getTradePlayer(requestedPlayer.getName()) == null)
@@ -127,7 +130,7 @@ public class TradeMod extends JavaPlugin
                                         {
                                             if (withinRadius(requestedPlayer.getLocation(), cmdSender.getLocation(), radius))
                                             {
-                                                if (!ConfigLoader.creativeToSurv())
+                                                if (!CFG.getBoolean(RootNode.CREATIVE_TRADING))
                                                 {
                                                     if (cmdSender.getGameMode() != GameMode.CREATIVE && requestedPlayer.getGameMode() != GameMode.CREATIVE)
                                                     {
@@ -136,9 +139,9 @@ public class TradeMod extends JavaPlugin
                                                         if (p.requestTrade(rP))
                                                         {
                                                             rP.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
-                                                            if (requestedPlayer.hasPermission("trademod.rightclickrequest") && ConfigLoader.getRequestEnabled())
+                                                            if (requestedPlayer.hasPermission("trademod.rightclickrequest") && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                                 rP.sendMessage("You can also sneak and right click, while unarmed, the other player to accept the request.");
-                                                            p.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + ConfigLoader.getTimeout() + " seconds");
+                                                            p.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + CFG.getInt(RootNode.TIMEOUT) + " seconds");
                                                         }
                                                     } else
                                                     {
@@ -152,9 +155,9 @@ public class TradeMod extends JavaPlugin
                                                     if (p.requestTrade(rP))
                                                     {
                                                         rP.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
-                                                        if (requestedPlayer.hasPermission("trademod.rightclickrequest") && ConfigLoader.getRequestEnabled())
+                                                        if (requestedPlayer.hasPermission("trademod.rightclickrequest") && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                             rP.sendMessage("You can also sneak and right click, while unarmed, the other player to accept the request.");
-                                                        p.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + ConfigLoader.getTimeout() + " seconds");
+                                                        p.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + CFG.getInt(RootNode.TIMEOUT) + " seconds");
                                                     }
                                                 }
                                             } else
@@ -391,8 +394,8 @@ public class TradeMod extends JavaPlugin
                     {
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Text Tutorial: http://dev.bukkit.org/server-mods/trademod/pages/help/");
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Video Tutorial: http://www.youtube.com/watch?v=YEs5tqUhuKk&feature=plcp");
-                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Maximum trade/request distance: " + ConfigLoader.getMaxDistance() + " blocks.");
-                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Request time-out length: " + ConfigLoader.getTimeout() + " seconds.");
+                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Maximum trade/request distance: " + CFG.getInt(RootNode.MAX_DISTANCE) + " blocks.");
+                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Request time-out length: " + CFG.getInt(RootNode.TIMEOUT) + " seconds.");
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can trade, and use commands: " + Boolean.toString(cmdSender.hasPermission("trademod.cantrade")));
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can use currency commands (addcoin, remcoin): " + Boolean.toString(cmdSender.hasPermission("trademod.currency")));
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "In a trade I can re-open the window by right clicking the other person: " + Boolean.toString(cmdSender.hasPermission("trademod.quickreopen")));
@@ -407,5 +410,10 @@ public class TradeMod extends JavaPlugin
             return true;
         }
         return false;
+    }
+
+    public RootConfig getCFG ()
+    {
+        return CFG;
     }
 }
