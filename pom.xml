@@ -19,7 +19,7 @@
         <mc-version>1.6.2</mc-version>
         <bukkit-ver>R0.1</bukkit-ver>
         <testDir>${basedir}/src/test</testDir>
-        <srcDir>${basedir}/src/</srcDir>
+        <srcDir>${basedir}/src/main/java</srcDir>
         <vault-ver>1.2.16</vault-ver>
         <!--Jenkins Build-Number to be included in the jar manifest and will be parsed by the /version command-->
         <buildNumber>${env.BUILD_NUMBER}</buildNumber>
