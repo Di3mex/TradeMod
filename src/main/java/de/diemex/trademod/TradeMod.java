@@ -15,29 +15,32 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 public class TradeMod extends JavaPlugin
 {
     private RootConfig CFG;
     private PlayerListener pl = new PlayerListener(this);
     private InventoryListener il = new InventoryListener();
-    //TODO remove this static "thing"
-    public static Economy economy = null;
-    private Logger log;
-    //TODO remove this static "thing" too
-    public static ArrayList<Trade> trades = new ArrayList<Trade>();
+    private Economy economy = null;
+    private ArrayList<Trade> trades = new ArrayList<Trade>();
 
 
     @Override
     public void onEnable()
     {
         CFG = new RootConfig(this);
-        log = this.getLogger();
+        CFG.load();
         PluginManager manager = this.getServer().getPluginManager();
         manager.registerEvents(pl, this);
         manager.registerEvents(il, this);
         setupEconomy();
+    }
+
+
+    @Override
+    public void onDisable()
+    {
+        CFG.close();
     }
 
 
@@ -106,7 +109,7 @@ public class TradeMod extends JavaPlugin
                     cmdSender.sendMessage(ChatColor.GOLD + "/tm remc/remcoin [AMOUNT] - Subtracts the specified amount of currency from the trade offer.");
                     cmdSender.sendMessage(ChatColor.BOLD + "" + ChatColor.BLUE + "/tm help - Opens the help menu, contains various pieces of information.");
                 }
-                if (command != "")
+                if (!command.isEmpty())
                 {
                     if (cmdSender.hasPermission("trademod.cantrade"))
                     {
@@ -404,8 +407,35 @@ public class TradeMod extends JavaPlugin
         return false;
     }
 
-    public RootConfig getCFG ()
+
+    public RootConfig getCFG()
     {
         return CFG;
+    }
+
+
+    public boolean hasEconomy()
+    {
+        return economy != null;
+    }
+
+
+    public Economy getEconomy()
+    {
+        if (economy == null)
+            throw new IllegalStateException("No Economy found but you still tried to access it");
+        return economy;
+    }
+
+
+    public void addTrade(Trade trade)
+    {
+        trades.add(trade);
+    }
+
+
+    public void removeTrade(Trade trade)
+    {
+        trades.remove(trade);
     }
 }

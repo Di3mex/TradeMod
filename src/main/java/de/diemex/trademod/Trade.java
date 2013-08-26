@@ -36,8 +36,8 @@ public class Trade
         this.plugin = plugin;
         requester = p1;
         requested = p2;
-        TradeMod.trades.add(this);
-        if (TradeMod.economy != null)
+        plugin.addTrade(this);
+        if (plugin.hasEconomy())
         {
             if (this.plugin.getCFG().getBoolean(RootNode.SCOREBOARD_CURR))
             {
@@ -114,18 +114,18 @@ public class Trade
                         requested.sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
                         requested.getTrade().requester.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
                     }
-                    if (requestedCur + amount > TradeMod.economy.getBalance(requested.getName()))
+                    if (requestedCur + amount > plugin.getEconomy().getBalance(requested.getName()))
                     {
-                        requestedCur = TradeMod.economy.getBalance(requested.getName());
+                        requestedCur = plugin.getEconomy().getBalance(requested.getName());
                         sh.updateBoard(requested, (int) requestedCur);
-                        requested.sendMessage("You have added your entire balance of " + TradeMod.economy.getBalance(requested.getName()) + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
-                        requester.sendMessage(requested.getName() + " has added their entire balance of " + TradeMod.economy.getBalance(requested.getName()) + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
+                        requested.sendMessage("You have added your entire balance of " + plugin.getEconomy().getBalance(requested.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        requester.sendMessage(requested.getName() + " has added their entire balance of " + plugin.getEconomy().getBalance(requested.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
                     } else
                     {
                         requestedCur += amount;
                         sh.updateBoard(requested, (int) requestedCur);
-                        requested.sendMessage("You have added " + amount + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
-                        requester.sendMessage(requested.getName() + " has added " + amount + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
+                        requested.sendMessage("You have added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        requester.sendMessage(requested.getName() + " has added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
                     }
                 } else if (p.equals(requester))
                 {
@@ -135,18 +135,18 @@ public class Trade
                         requester.sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
                         requester.getTrade().requested.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
                     }
-                    if (requesterCur + amount > TradeMod.economy.getBalance(requester.getName()))
+                    if (requesterCur + amount > plugin.getEconomy().getBalance(requester.getName()))
                     {
-                        requesterCur = TradeMod.economy.getBalance(requester.getName());
+                        requesterCur = plugin.getEconomy().getBalance(requester.getName());
                         sh.updateBoard(requester, (int) requesterCur);
-                        requester.sendMessage("You have added your entire balance of " + TradeMod.economy.getBalance(requester.getName()) + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
-                        requested.sendMessage(requester.getName() + " has added their entire balance of " + TradeMod.economy.getBalance(requester.getName()) + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
+                        requester.sendMessage("You have added your entire balance of " + plugin.getEconomy().getBalance(requester.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        requested.sendMessage(requester.getName() + " has added their entire balance of " + plugin.getEconomy().getBalance(requester.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
                     } else
                     {
                         requesterCur += amount;
                         sh.updateBoard(requester, (int) requesterCur);
-                        requester.sendMessage("You have added " + amount + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
-                        requested.sendMessage(requester.getName() + " has added " + amount + " " + TradeMod.economy.currencyNameSingular() + " to the trade!");
+                        requester.sendMessage("You have added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        requested.sendMessage(requester.getName() + " has added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
                     }
                 }
             }
@@ -172,8 +172,8 @@ public class Trade
                     {
                         requestedCur -= amount;
                         sh.updateBoard(requested, (int) requestedCur);
-                        requested.sendMessage("You have removed " + amount + " " + TradeMod.economy.currencyNameSingular() + " from the trade, current amount left: " + requestedCur);
-                        requester.sendMessage(requested.getName() + " has removed " + amount + " " + TradeMod.economy.currencyNameSingular() + " from the trade, current amount left: " + requestedCur);
+                        requested.sendMessage("You have removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requestedCur);
+                        requester.sendMessage(requested.getName() + " has removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requestedCur);
                     } else
                     {
                         requestedCur = 0;
@@ -193,8 +193,8 @@ public class Trade
                     {
                         requesterCur -= amount;
                         sh.updateBoard(requester, (int) requesterCur);
-                        requester.sendMessage("You have removed " + amount + " " + TradeMod.economy.currencyNameSingular() + " from the trade, current amount left: " + requesterCur);
-                        requested.sendMessage(requested.getName() + " has removed " + amount + " " + TradeMod.economy.currencyNameSingular() + " from the trade, current amount left: " + requesterCur);
+                        requester.sendMessage("You have removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requesterCur);
+                        requested.sendMessage(requested.getName() + " has removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requesterCur);
                     } else
                     {
                         requesterCur = 0;
@@ -262,28 +262,28 @@ public class Trade
                 }
                 if (requestedCur > 0)
                 {
-                    if (TradeMod.economy.getBalance(requested.getName()) >= requestedCur)
+                    if (plugin.getEconomy().getBalance(requested.getName()) >= requestedCur)
                     {
-                        TradeMod.economy.depositPlayer(requester.getName(), requestedCur);
-                        TradeMod.economy.withdrawPlayer(requested.getName(), requestedCur);
-                        requester.sendMessage("You have received " + requestedCur + " " + TradeMod.economy.currencyNameSingular() + " from " + requested.getName() + "!");
-                        requested.sendMessage("You have payed " + requester.getName() + " " + requestedCur + " " + TradeMod.economy.currencyNameSingular() + "!");
+                        plugin.getEconomy().depositPlayer(requester.getName(), requestedCur);
+                        plugin.getEconomy().withdrawPlayer(requested.getName(), requestedCur);
+                        requester.sendMessage("You have received " + requestedCur + " " + plugin.getEconomy().currencyNameSingular() + " from " + requested.getName() + "!");
+                        requested.sendMessage("You have payed " + requester.getName() + " " + requestedCur + " " + plugin.getEconomy().currencyNameSingular() + "!");
                     } else
                     {
-                        requested.cancelTrade(requested, "Not enough " + TradeMod.economy.currencyNameSingular() + "!");
+                        requested.cancelTrade(requested, "Not enough " + plugin.getEconomy().currencyNameSingular() + "!");
                     }
                 }
                 if (requesterCur > 0)
                 {
-                    if (TradeMod.economy.getBalance(requester.getName()) >= requesterCur)
+                    if (plugin.getEconomy().getBalance(requester.getName()) >= requesterCur)
                     {
-                        TradeMod.economy.depositPlayer(requested.getName(), requesterCur);
-                        TradeMod.economy.withdrawPlayer(requester.getName(), requesterCur);
-                        requested.sendMessage("You have received " + requesterCur + " " + TradeMod.economy.currencyNameSingular() + " from " + requester.getName() + "!");
-                        requester.sendMessage("You have payed " + requested.getName() + " " + requesterCur + " " + TradeMod.economy.currencyNameSingular() + "!");
+                        plugin.getEconomy().depositPlayer(requested.getName(), requesterCur);
+                        plugin.getEconomy().withdrawPlayer(requester.getName(), requesterCur);
+                        requested.sendMessage("You have received " + requesterCur + " " + plugin.getEconomy().currencyNameSingular() + " from " + requester.getName() + "!");
+                        requester.sendMessage("You have payed " + requested.getName() + " " + requesterCur + " " + plugin.getEconomy().currencyNameSingular() + "!");
                     } else
                     {
-                        requester.cancelTrade(requester, "Not enough " + TradeMod.economy.currencyNameSingular() + "!");
+                        requester.cancelTrade(requester, "Not enough " + plugin.getEconomy().currencyNameSingular() + "!");
                     }
                 }
                 TradeLogger tL = new TradeLogger();
@@ -296,9 +296,10 @@ public class Trade
                 requester.currencyModCancel();
                 TradePlayer.removePlayer(requested);
                 TradePlayer.removePlayer(requester);
-                i = null;
+                i
+                        = null;
                 q = null;
-                TradeMod.trades.remove(this);
+                plugin.removeTrade(this);
                 if (sh != null)
                     sh.closeBoard();
             } else
@@ -319,7 +320,7 @@ public class Trade
                 requestedOvf.clear();
                 i = null;
                 q = null;
-                TradeMod.trades.remove(this);
+                plugin.removeTrade(this);
             }
         } catch (Exception e)
         {

@@ -2,6 +2,7 @@ package de.diemex.trademod;
 
 
 import de.diemex.trademod.config.RootNode;
+import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,7 +24,7 @@ public class TradePlayer
 
     public Trade trade = null;
     //TODO remove the static bullshit
-    public static ArrayList<TradePlayer> players = new ArrayList<TradePlayer>();
+    private static ArrayList<TradePlayer> players = new ArrayList<TradePlayer>();
     public Inventory tradeInv = null;
     public int maxSlot = -1;
     public int minSlot = -1;
@@ -68,23 +69,25 @@ public class TradePlayer
     {
         try
         {
-            if (TradeMod.economy != null)
+            if (plugin.hasEconomy())
             {
-                double bal = TradeMod.economy.getBalance(playerName);
-                double amount = 0;
+                double bal = plugin.getEconomy().getBalance(playerName);
+                double amount;
                 if (bal > 0)
                 {
                     if (!msg.startsWith("-"))
                     {
+                        //TODO RegexHelper
                         amount = Double.parseDouble(msg);
                         if (!(amount > bal))
                         {
+                            //TODO one method sub/add
                             trade.addCurrency(this, amount);
                             openTrade();
                             modCurrency = false;
                         } else
                         {
-                            sendMessage("You do not have " + amount + " " + TradeMod.economy.currencyNameSingular() + "!");
+                            sendMessage("You do not have " + amount + " " + plugin.getEconomy().currencyNameSingular() + "!");
                         }
                     } else
                     {
@@ -95,7 +98,7 @@ public class TradePlayer
                     }
                 } else
                 {
-                    sendMessage("You do not have any " + TradeMod.economy.currencyNameSingular() + "!");
+                    sendMessage("You do not have any " + plugin.getEconomy().currencyNameSingular() + "!");
                 }
             } else
             {
@@ -109,31 +112,32 @@ public class TradePlayer
     }
 
 
-    public void handleClickEvent(InventoryClickEvent e)
+    //TODO centralize
+    public void handleClickEvent(InventoryClickEvent event)
     {
         try
         {
-            TradeLogger tL = new TradeLogger();
-            if (e.isShiftClick())
+            TradeLogger tradeLogger = new TradeLogger();
+            if (event.isShiftClick())
             {
                 sendMessage("As of right now shift clicking is disabled for trading.");
-                e.setCancelled(true);
+                event.setCancelled(true);
                 return;
             }
-            int slot = e.getRawSlot();
-            ItemStack i = e.getCurrentItem();
+            int slot = event.getRawSlot();
+            ItemStack i = event.getCurrentItem();
             TradePlayer oP = getOtherPlayer();
             if (slot > minSlot && slot < maxSlot)
             {
                 if (hasConfirmed())
                 {
                     sendMessage("Un-confirm the trade before trying to make changes!");
-                    e.setCancelled(true);
+                    event.setCancelled(true);
                 } else
                 {
                     if (oP.hasConfirmed())
                     {
-                        if ((e.getCursor() != null && e.getCursor().getType() != Material.AIR) || i.getType() != Material.AIR)
+                        if ((event.getCursor() != null && event.getCursor().getType() != Material.AIR) || i.getType() != Material.AIR)
                         {
                             oP.setConfirmed(false);
                             sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
@@ -141,10 +145,10 @@ public class TradePlayer
                         }
                     }
                     //TODO IMPLEMENT blacklist configuration
-                    if (!false)
+                    if (!true)
                     {
                         sendMessage("This item is untradable!");
-                        e.setCancelled(true);
+                        event.setCancelled(true);
                     }
                 }
             } else
@@ -157,12 +161,12 @@ public class TradePlayer
                     } else
                     {
                         sendMessage("Un-confirm the trade before trying to make changes!");
-                        e.setCancelled(true);
+                        event.setCancelled(true);
                     }
                 }
                 if (slot == curSlot)
                 {
-                    tL.logClicks(getName() + " clicked currency slot.");
+                    tradeLogger.logClicks(getName() + " clicked currency slot.");
                     if (plugin.getServer().getPlayer(playerName).hasPermission("trademod.currency"))
                     {
                         if (!hasConfirmed())
@@ -176,7 +180,7 @@ public class TradePlayer
                         } else
                         {
                             sendMessage("Un-confirm the trade before trying to make changes!");
-                            e.setCancelled(true);
+                            event.setCancelled(true);
                         }
                         if (oP.hasConfirmed())
                         {
@@ -191,13 +195,13 @@ public class TradePlayer
                 }
                 if (i != null)
                 {
-                    if (!(e.isRightClick() && e.isShiftClick()))
+                    if (!(event.isRightClick() && event.isShiftClick()))
                     {
                         if (i.getType() == Material.WOOL)
                         {
                             if (slot == accSlot)
                             {
-                                tL.logClicks(getName() + " confirmed offer.");
+                                tradeLogger.logClicks(getName() + " confirmed offer.");
                                 if (!oP.hasConfirmed())
                                 {
                                     // if(e.getCursor() == null) {
@@ -213,30 +217,23 @@ public class TradePlayer
                                 } else if (oP.hasConfirmed())
                                 {
                                     trade.confirm();
-                                    tL.logClicks(getName() + " accepted trade.");
+                                    tradeLogger.logClicks(getName() + " accepted trade.");
                                 }
                             }
                             if (slot == canSlot)
                             {
                                 cancelTrade(this, "Manually canceled.");
-                                tL.logClicks(getName() + " clicked cancel.");
+                                tradeLogger.logClicks(getName() + " clicked cancel.");
                             }
                         }
                     }
                 }
                 updateScreen(); //Necessary until bukkit implements better syncing.
-                e.setCancelled(true);
+                event.setCancelled(true);
             }
-
-			/*String c = "[Player]: " + getName() + " [slot]: " + e.getRawSlot() + " [iteminslot]: " + i.toString() + " [itemoncursor]: " + e.getCursor().toString() + " [otherplayer]: " + oP.getName();
-			if(e.isRightClick())
-				c += " [typeofclick]: right";
-			else
-				c += " [typeofclick]: left";
-			tL.logClicks(c);*/
-        } catch (Exception e1)
+        } catch (Exception e)
         {
-            e1.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -444,7 +441,7 @@ public class TradePlayer
         players.remove(this);
         trade.requested = null;
         trade.requester = null;
-        TradeMod.trades.remove(trade);
+        plugin.removeTrade(trade);
     }
 
 
@@ -536,7 +533,6 @@ public class TradePlayer
     public static void removePlayer(TradePlayer player)
     {
         players.remove(player);
-        player = null;
     }
 
 
@@ -548,14 +544,12 @@ public class TradePlayer
 
     public static TradePlayer getTradePlayer(String name)
     {
-        if (name != null)
+        Validate.notEmpty(name);
+        for (TradePlayer p : players)
         {
-            for (TradePlayer p : players)
+            if (p.playerName.equalsIgnoreCase(name))
             {
-                if (p.playerName.equalsIgnoreCase(name))
-                {
-                    return p;
-                }
+                return p;
             }
         }
         return null;

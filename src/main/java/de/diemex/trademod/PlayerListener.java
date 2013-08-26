@@ -117,7 +117,7 @@ public class PlayerListener implements Listener
                                             requested.sendMessage(player.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
                                             if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                 requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                            requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
+                                            requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getInt(RootNode.TIMEOUT) + " seconds");
                                         }
                                     } else
                                     {
@@ -133,7 +133,7 @@ public class PlayerListener implements Listener
                                         requested.sendMessage(player.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
                                         if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                             requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                        requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getBoolean(RootNode.TIMEOUT) + " seconds");
+                                        requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getInt(RootNode.TIMEOUT) + " seconds");
                                     }
                                 }
                             }
