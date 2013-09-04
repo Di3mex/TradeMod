@@ -3,6 +3,8 @@ package de.diemex.trademod;
 
 import de.diemex.trademod.config.RootNode;
 import static de.diemex.trademod.Message.*;
+
+import de.diemex.trademod.service.PermissionNode;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -82,7 +84,7 @@ public class PlayerListener implements Listener
                     TradePlayer otherTradePlayer = TradePlayer.getTradePlayer(otherPlayer);
                     if (tradePlayer.isInTrade())
                     {
-                        if (tradePlayer.getPlayer().hasPermission("trademod.quickreopen"))
+                        if (tradePlayer.getPlayer().hasPermission(PermissionNode.QUICK_REOPEN.getNode()))
                         {
                             if (tradePlayer.getOtherPlayer() == otherTradePlayer)
                             {
@@ -105,7 +107,7 @@ public class PlayerListener implements Listener
                     {
                         if (plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                         {
-                            if (player.hasPermission("trademod.rightclickrequest"))
+                            if (player.hasPermission(PermissionNode.RIGHTCLICK_REQUEST.getNode()))
                             {
                                 if (!plugin.getCFG().getBoolean(RootNode.CREATIVE_TRADING))
                                 {
@@ -116,7 +118,7 @@ public class PlayerListener implements Listener
                                         if (requester.requestTrade(requested))
                                         {
                                             MSG_TRADE_REQUEST.send(requested.getPlayer(), player.getName());
-                                            if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
+                                            if (otherPlayer.hasPermission(PermissionNode.RIGHTCLICK_REQUEST.getNode()) && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                 MSG_TRADE_REQUEST_RC_TIP.send(requested.getPlayer());
                                             MSG_TRADE_REQUEST_OTHER.send(requester.getPlayer(), otherPlayer.getName(), plugin.getCFG().getInt(RootNode.TIMEOUT));
                                         }
@@ -132,7 +134,7 @@ public class PlayerListener implements Listener
                                     if (requester.requestTrade(requested))
                                     {
                                         MSG_TRADE_REQUEST.send(requested.getPlayer(), player.getName());
-                                        if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
+                                        if (otherPlayer.hasPermission(PermissionNode.RIGHTCLICK_REQUEST.getNode()) && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                             MSG_TRADE_REQUEST_RC_TIP.send(requested.getPlayer());
                                         MSG_TRADE_REQUEST_OTHER.send(requester.getPlayer(), otherPlayer.getName(), plugin.getCFG().getInt(RootNode.TIMEOUT));
                                     }

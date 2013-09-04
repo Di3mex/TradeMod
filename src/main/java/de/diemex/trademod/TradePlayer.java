@@ -2,6 +2,7 @@ package de.diemex.trademod;
 
 
 import de.diemex.trademod.config.RootNode;
+import de.diemex.trademod.service.PermissionNode;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -166,7 +167,7 @@ public class TradePlayer
                 if (slot == curSlot)
                 {
                     tradeLogger.logClicks(getName() + " clicked currency slot.");
-                    if (plugin.getServer().getPlayer(playerName).hasPermission("trademod.currency"))
+                    if (plugin.getServer().getPlayer(playerName).hasPermission(PermissionNode.CURRENCY.getNode()))
                     {
                         if (!hasConfirmed())
                         {

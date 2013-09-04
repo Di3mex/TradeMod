@@ -4,6 +4,8 @@ package de.diemex.trademod;
 import de.diemex.trademod.config.RootConfig;
 import de.diemex.trademod.config.RootNode;
 import static de.diemex.trademod.Message.*;
+
+import de.diemex.trademod.service.PermissionNode;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -112,7 +114,7 @@ public class TradeMod extends JavaPlugin
                 }
                 if (!command.isEmpty())
                 {
-                    if (cmdSender.hasPermission("trademod.cantrade"))
+                    if (cmdSender.hasPermission(PermissionNode.CAN_TRADE.getNode()))
                     {
                         if (command.equalsIgnoreCase("req") || command.equalsIgnoreCase("request"))
                         {
@@ -137,7 +139,7 @@ public class TradeMod extends JavaPlugin
                                                         if (p.requestTrade(rP))
                                                         {
                                                             MSG_TRADE_REQUEST.send(rP.getPlayer(), p.getName());
-                                                            if (requestedPlayer.hasPermission("trademod.rightclickrequest") && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
+                                                            if (requestedPlayer.hasPermission(PermissionNode.RIGHTCLICK_REQUEST.getNode()) && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                                 MSG_TRADE_REQUEST_RC_TIP.send(rP.getPlayer());
                                                             MSG_TRADE_REQUEST_OTHER.send(p.getPlayer(), p.getName(), CFG.getInt(RootNode.TIMEOUT));
                                                         }
@@ -153,7 +155,7 @@ public class TradeMod extends JavaPlugin
                                                     if (p.requestTrade(rP))
                                                     {
                                                         MSG_TRADE_REQUEST.send(rP.getPlayer(), p.getName());
-                                                        if (requestedPlayer.hasPermission("trademod.rightclickrequest") && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
+                                                        if (requestedPlayer.hasPermission(PermissionNode.RIGHTCLICK_REQUEST.getNode()) && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
                                                             MSG_TRADE_REQUEST_RC_TIP.send(rP.getPlayer());
                                                         MSG_TRADE_REQUEST_OTHER.send(p.getPlayer(), p.getName(), CFG.getInt(RootNode.TIMEOUT));
                                                     }
@@ -271,7 +273,7 @@ public class TradeMod extends JavaPlugin
                             }
                         } else if (command.equalsIgnoreCase("addc") || command.equalsIgnoreCase("addcoin"))
                         {
-                            if (cmdSender.hasPermission("trademod.currency"))
+                            if (cmdSender.hasPermission(PermissionNode.CURRENCY.getNode()))
                             {
                                 TradePlayer rP = TradePlayer.getTradePlayer(cmdSender);
                                 int amount = 0;
@@ -333,7 +335,7 @@ public class TradeMod extends JavaPlugin
                             }
                         } else if (command.equalsIgnoreCase("remc") || command.equalsIgnoreCase("remcoin"))
                         {
-                            if (cmdSender.hasPermission("trademod.currency"))
+                            if (cmdSender.hasPermission(PermissionNode.CURRENCY.getNode()))
                             {
                                 TradePlayer rP = TradePlayer.getTradePlayer(cmdSender);
                                 int amount = 0;
@@ -394,10 +396,10 @@ public class TradeMod extends JavaPlugin
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Video Tutorial: http://www.youtube.com/watch?v=YEs5tqUhuKk&feature=plcp");
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Maximum trade/request distance: " + CFG.getInt(RootNode.MAX_DISTANCE) + " blocks.");
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Request time-out length: " + CFG.getInt(RootNode.TIMEOUT) + " seconds.");
-                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can trade, and use commands: " + Boolean.toString(cmdSender.hasPermission("trademod.cantrade")));
-                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can use currency commands (addcoin, remcoin): " + Boolean.toString(cmdSender.hasPermission("trademod.currency")));
-                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "In a trade I can re-open the window by right clicking the other person: " + Boolean.toString(cmdSender.hasPermission("trademod.quickreopen")));
-                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can request another person to trade by right-clicking them while sneaking: " + Boolean.toString(cmdSender.hasPermission("trademod.rightclickrequest")));
+                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can trade, and use commands: " + Boolean.toString(cmdSender.hasPermission(PermissionNode.CAN_TRADE.getNode())));
+                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can use currency commands (addcoin, remcoin): " + Boolean.toString(cmdSender.hasPermission(PermissionNode.CURRENCY.getNode())));
+                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "In a trade I can re-open the window by right clicking the other person: " + Boolean.toString(cmdSender.hasPermission(PermissionNode.QUICK_REOPEN.getNode())));
+                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can request another person to trade by right-clicking them while sneaking: " + Boolean.toString(cmdSender.hasPermission(PermissionNode.RIGHTCLICK_REQUEST.getNode())));
                     }
                 }
             } catch (Exception e) //TODO WHAT?!
