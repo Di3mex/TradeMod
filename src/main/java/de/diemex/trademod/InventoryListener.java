@@ -91,7 +91,7 @@ public class InventoryListener implements Listener
                 {
                     if (i.getName().equalsIgnoreCase("trade screen"))
                     {
-                        tP.sendMessage("Closing the trade has auto unconfirmed your trade, use /tm open to return to the screen and re-confirm.");
+                        Message.MSG_UNCONFIRM_CLOSE_INV.send(tP.getPlayer());
                         tP.setConfirmed(false);
                     }
                 }

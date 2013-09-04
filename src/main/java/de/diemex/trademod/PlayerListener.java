@@ -2,6 +2,7 @@ package de.diemex.trademod;
 
 
 import de.diemex.trademod.config.RootNode;
+import static de.diemex.trademod.Message.*;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -114,10 +115,10 @@ public class PlayerListener implements Listener
                                         TradePlayer requester = new TradePlayer(plugin, player);
                                         if (requester.requestTrade(requested))
                                         {
-                                            requested.sendMessage(player.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
+                                            MSG_TRADE_REQUEST.send(requested.getPlayer(), player.getName());
                                             if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
-                                                requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                            requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getInt(RootNode.TIMEOUT) + " seconds");
+                                                MSG_TRADE_REQUEST_RC_TIP.send(requested.getPlayer());
+                                            MSG_TRADE_REQUEST_OTHER.send(requester.getPlayer(), otherPlayer.getName(), plugin.getCFG().getInt(RootNode.TIMEOUT));
                                         }
                                     } else
                                     {
@@ -130,10 +131,10 @@ public class PlayerListener implements Listener
                                     TradePlayer requester = new TradePlayer(plugin, player);
                                     if (requester.requestTrade(requested))
                                     {
-                                        requested.sendMessage(player.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
+                                        MSG_TRADE_REQUEST.send(requested.getPlayer(), player.getName());
                                         if (otherPlayer.hasPermission("trademod.rightclickrequest") && plugin.getCFG().getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
-                                            requested.sendMessage("You can also sneak and right click, while unarmed, on the other player to accept the request.");
-                                        requester.sendMessage("You have requested " + otherPlayer.getName() + " to trade with you. The request will automatically cancel in " + plugin.getCFG().getInt(RootNode.TIMEOUT) + " seconds");
+                                            MSG_TRADE_REQUEST_RC_TIP.send(requested.getPlayer());
+                                        MSG_TRADE_REQUEST_OTHER.send(requester.getPlayer(), otherPlayer.getName(), plugin.getCFG().getInt(RootNode.TIMEOUT));
                                     }
                                 }
                             }

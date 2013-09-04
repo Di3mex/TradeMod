@@ -2,6 +2,7 @@ package de.diemex.trademod;
 
 
 import de.diemex.trademod.config.RootNode;
+import static de.diemex.trademod.Message.*;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -57,9 +58,8 @@ public class Trade
         requester.setOtherPlayer(requested);
         requested.setOtherPlayer(requester);
 
-        requester.sendMessage("You have the top portion of the screen.");
-        requested.sendMessage("You have the bottom portion of the screen.");
-
+        MSG_TRADE_TUT.send(requester.getPlayer());
+        MSG_TRADE_TUT_OTHER.send(requested.getPlayer());
 
         //Bounds for bottom/top part of the trade screen
         requester.minSlot = 2;
@@ -111,42 +111,42 @@ public class Trade
                     if (requested.getTrade().requester.hasConfirmed())
                     {
                         requested.getTrade().requester.setConfirmed(false);
-                        requested.sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
-                        requested.getTrade().requester.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
+                        MSG_UNCONFIRM_AFTER_EDIT.send(requested.getPlayer());
+                        MSG_UNCONFIRM_AFTER_EDIT_OTHER.send(requested.getTrade().requester.getPlayer());
                     }
                     if (requestedCur + amount > plugin.getEconomy().getBalance(requested.getName()))
                     {
                         requestedCur = plugin.getEconomy().getBalance(requested.getName());
                         sh.updateBoard(requested, (int) requestedCur);
-                        requested.sendMessage("You have added your entire balance of " + plugin.getEconomy().getBalance(requested.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
-                        requester.sendMessage(requested.getName() + " has added their entire balance of " + plugin.getEconomy().getBalance(requested.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        MSG_CURRENCY_ALL_IN.send(requested.getPlayer(), plugin.getEconomy().getBalance(requested.getName()), plugin.getEconomy().currencyNameSingular());
+                        MSG_CURRENCY_ALL_IN_OTHER.send(requester.getPlayer(), requested.getName(), plugin.getEconomy().getBalance(requested.getName()), plugin.getEconomy().currencyNameSingular());
                     } else
                     {
                         requestedCur += amount;
                         sh.updateBoard(requested, (int) requestedCur);
-                        requested.sendMessage("You have added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
-                        requester.sendMessage(requested.getName() + " has added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        MSG_CURRENCY_ADD.send(requested.getPlayer(), amount,plugin.getEconomy().currencyNameSingular());
+                        MSG_CURRENCY_ALL_IN_OTHER.send(requester.getPlayer(), requested.getName(), amount, plugin.getEconomy().currencyNameSingular());
                     }
                 } else if (p.equals(requester))
                 {
                     if (requester.getTrade().requested.hasConfirmed())
                     {
                         requester.getTrade().requested.setConfirmed(false);
-                        requester.sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
-                        requester.getTrade().requested.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
+                        MSG_UNCONFIRM_AFTER_EDIT.send(requester.getPlayer());
+                        MSG_UNCONFIRM_AFTER_EDIT_OTHER.send(requester.getTrade().requested.getPlayer());
                     }
                     if (requesterCur + amount > plugin.getEconomy().getBalance(requester.getName()))
                     {
                         requesterCur = plugin.getEconomy().getBalance(requester.getName());
                         sh.updateBoard(requester, (int) requesterCur);
-                        requester.sendMessage("You have added your entire balance of " + plugin.getEconomy().getBalance(requester.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
-                        requested.sendMessage(requester.getName() + " has added their entire balance of " + plugin.getEconomy().getBalance(requester.getName()) + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        MSG_CURRENCY_ALL_IN.send(requester.getPlayer(), plugin.getEconomy().getBalance(requester.getName()), plugin.getEconomy().currencyNameSingular());
+                        MSG_CURRENCY_ALL_IN_OTHER.send(requested.getPlayer(), requester.getName(), plugin.getEconomy().getBalance(requester.getName()), plugin.getEconomy().currencyNameSingular());
                     } else
                     {
                         requesterCur += amount;
                         sh.updateBoard(requester, (int) requesterCur);
-                        requester.sendMessage("You have added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
-                        requested.sendMessage(requester.getName() + " has added " + amount + " " + plugin.getEconomy().currencyNameSingular() + " to the trade!");
+                        MSG_CURRENCY_ADD.send(requester.getPlayer(), amount, plugin.getEconomy().currencyNameSingular());
+                        MSG_CURRENCY_ADD_OTHER.send(requested.getPlayer(), requester.getName(), amount, plugin.getEconomy().currencyNameSingular());
                     }
                 }
             }
@@ -165,42 +165,42 @@ public class Trade
                     if (requested.getTrade().requester.hasConfirmed())
                     {
                         requested.getTrade().requester.setConfirmed(false);
-                        requested.sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
-                        requested.getTrade().requester.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
+                        MSG_UNCONFIRM_AFTER_EDIT.send(requested.getPlayer());
+                        MSG_UNCONFIRM_AFTER_EDIT_OTHER.send(requested.getTrade().requester.getPlayer());
                     }
                     if (requestedCur - amount > 0)
                     {
                         requestedCur -= amount;
                         sh.updateBoard(requested, (int) requestedCur);
-                        requested.sendMessage("You have removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requestedCur);
-                        requester.sendMessage(requested.getName() + " has removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requestedCur);
+                        MSG_CURRENCY_REMOVE.send(requested.getPlayer(), amount, plugin.getEconomy().currencyNameSingular(), requestedCur);
+                        MSG_CURRENCY_REMOVE_OTHER.send(requester.getPlayer(), requested.getName(), amount, plugin.getEconomy().currencyNameSingular(), requestedCur);
                     } else
                     {
                         requestedCur = 0;
                         sh.updateBoard(requested, 0);
-                        requested.sendMessage("You have removed all currency from the offer.");
-                        requester.sendMessage(requested.getName() + " has removed all currency from the offer.");
+                        MSG_CURRENCY_ALL_OUT.send(requested.getPlayer());
+                        MSG_CURRENCY_ALL_OUT_OTHER.send(requester.getPlayer());
                     }
                 } else if (p.equals(requester))
                 {
                     if (requester.getTrade().requested.hasConfirmed())
                     {
                         requester.getTrade().requested.setConfirmed(false);
-                        requester.sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
-                        requester.getTrade().requested.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
+                        MSG_UNCONFIRM_AFTER_EDIT.send(requester.getPlayer());
+                        MSG_UNCONFIRM_AFTER_EDIT_OTHER.send(requester.getTrade().requested.getPlayer());
                     }
                     if (requesterCur - amount > 0)
                     {
                         requesterCur -= amount;
                         sh.updateBoard(requester, (int) requesterCur);
-                        requester.sendMessage("You have removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requesterCur);
-                        requested.sendMessage(requested.getName() + " has removed " + amount + " " + plugin.getEconomy().currencyNameSingular() + " from the trade, current amount left: " + requesterCur);
+                        MSG_CURRENCY_REMOVE.send(requester.getPlayer(), amount, plugin.getEconomy().currencyNameSingular(), requestedCur);
+                        MSG_CURRENCY_REMOVE_OTHER.send(requested.getPlayer(), requested.getName(), amount, plugin.getEconomy().currencyNameSingular(), requestedCur);
                     } else
                     {
                         requesterCur = 0;
                         sh.updateBoard(requester, 0);
-                        requester.sendMessage("You have removed all currency from the offer.");
-                        requested.sendMessage(requester.getName() + " has removed all currency from the offer.");
+                        MSG_CURRENCY_ALL_OUT.send(requester.getPlayer());
+                        MSG_CURRENCY_ALL_OUT_OTHER.send(requested.getPlayer(), requester.getName());
                     }
                 }
             }
@@ -266,8 +266,9 @@ public class Trade
                     {
                         plugin.getEconomy().depositPlayer(requester.getName(), requestedCur);
                         plugin.getEconomy().withdrawPlayer(requested.getName(), requestedCur);
-                        requester.sendMessage("You have received " + requestedCur + " " + plugin.getEconomy().currencyNameSingular() + " from " + requested.getName() + "!");
-                        requested.sendMessage("You have payed " + requester.getName() + " " + requestedCur + " " + plugin.getEconomy().currencyNameSingular() + "!");
+
+                        MSG_CURRENCY_SUCCES.send(requested.getPlayer(), requester.getName(), requestedCur, plugin.getEconomy().currencyNameSingular());
+                        MSG_CURRENCY_SUCCESS_OTHER.send(requested.getPlayer(), requester.getName(), requestedCur, plugin.getEconomy().currencyNameSingular());
                     } else
                     {
                         requested.cancelTrade(requested, "Not enough " + plugin.getEconomy().currencyNameSingular() + "!");
@@ -279,8 +280,7 @@ public class Trade
                     {
                         plugin.getEconomy().depositPlayer(requested.getName(), requesterCur);
                         plugin.getEconomy().withdrawPlayer(requester.getName(), requesterCur);
-                        requested.sendMessage("You have received " + requesterCur + " " + plugin.getEconomy().currencyNameSingular() + " from " + requester.getName() + "!");
-                        requester.sendMessage("You have payed " + requested.getName() + " " + requesterCur + " " + plugin.getEconomy().currencyNameSingular() + "!");
+                        MSG_CURRENCY_SUCCES.send(requester.getPlayer(), requested.getName(), requestedCur, plugin.getEconomy().currencyNameSingular());
                     } else
                     {
                         requester.cancelTrade(requester, "Not enough " + plugin.getEconomy().currencyNameSingular() + "!");
@@ -290,14 +290,13 @@ public class Trade
                 tL.logTrade(this);
                 requested.closeTrade();
                 requester.closeTrade();
-                requested.sendMessage("The trade was successful. You may now trade others.");
-                requester.sendMessage("The trade was successful. You may now trade others.");
+                MSG_TRADE_SUCCESS.send(requested.getPlayer());
+                MSG_TRADE_SUCCESS.send(requester.getPlayer());
                 requested.currencyModCancel();
                 requester.currencyModCancel();
                 TradePlayer.removePlayer(requested);
                 TradePlayer.removePlayer(requester);
-                i
-                        = null;
+                i = null;
                 q = null;
                 plugin.removeTrade(this);
                 if (sh != null)
@@ -308,13 +307,13 @@ public class Trade
                 requested.setConfirmed(false);
                 if (!requesterOvf.isEmpty())
                 {
-                    requester.sendMessage("You have too many items in your current inventory to confirm the trade. Please remove some items before attempting to trade the current inventory.");
-                    requested.sendMessage(requester.getName() + " had too many items in their inventory to complete the trade.");
+                    ERR_NOT_ENOUGH_SPACE.send(requester.getPlayer());
+                    ERR_NOT_ENOUGH_SPACE_OTHER.send(requested.getPlayer());
                 }
                 if (!requestedOvf.isEmpty())
                 {
-                    requested.sendMessage("You have too many items in your current inventory to confirm the trade. Please remove some items before attempting to trade the current inventory.");
-                    requester.sendMessage(requested.getName() + " had too many items in their inventory to complete the trade.");
+                    ERR_NOT_ENOUGH_SPACE.send(requested.getPlayer());
+                    ERR_NOT_ENOUGH_SPACE_OTHER.send(requester.getPlayer());
                 }
                 requesterOvf.clear();
                 requestedOvf.clear();

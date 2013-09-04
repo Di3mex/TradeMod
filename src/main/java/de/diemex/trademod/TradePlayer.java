@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
+import static de.diemex.trademod.Message.*;
 import java.util.ArrayList;
 
 public class TradePlayer
@@ -87,7 +87,7 @@ public class TradePlayer
                             modCurrency = false;
                         } else
                         {
-                            sendMessage("You do not have " + amount + " " + plugin.getEconomy().currencyNameSingular() + "!");
+                            Message.ERR_NOT_ENOUGH_CURRENCY.send(this.getPlayer(), amount, plugin.getEconomy().currencyNameSingular());
                         }
                     } else
                     {
@@ -98,16 +98,15 @@ public class TradePlayer
                     }
                 } else
                 {
-                    sendMessage("You do not have any " + plugin.getEconomy().currencyNameSingular() + "!");
+                    ERR_NO_CURRENCY.send(getPlayer(), plugin.getEconomy().currencyNameSingular());
                 }
             } else
             {
-                sendMessage("This server does not support currency in trades!");
+                ERR_NO_ECONOMY_ACTIVE.send(getPlayer());
             }
         } catch (Exception e)
         {
-            sendMessage("You must enter a number. Negative numbers indicate a removal of currency from the offer");
-            sendMessage("while positive numbers indicate an addition to your offer.");
+            ERR_CURRENCY_INVALID_INPUT.send(getPlayer());
         }
     }
 
@@ -120,7 +119,7 @@ public class TradePlayer
             TradeLogger tradeLogger = new TradeLogger();
             if (event.isShiftClick())
             {
-                sendMessage("As of right now shift clicking is disabled for trading.");
+                Message.ERR_SHIFT_CLICK_DISABLED.send(getPlayer());
                 event.setCancelled(true);
                 return;
             }
@@ -131,7 +130,7 @@ public class TradePlayer
             {
                 if (hasConfirmed())
                 {
-                    sendMessage("Un-confirm the trade before trying to make changes!");
+                    Message.ERR_UNCONFIRM_BEFORE_EDIT.send(getPlayer());
                     event.setCancelled(true);
                 } else
                 {
@@ -140,14 +139,14 @@ public class TradePlayer
                         if ((event.getCursor() != null && event.getCursor().getType() != Material.AIR) || i.getType() != Material.AIR)
                         {
                             oP.setConfirmed(false);
-                            sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
-                            oP.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
+                            Message.MSG_UNCONFIRM_AFTER_EDIT.send(getPlayer());
+                            Message.MSG_UNCONFIRM_AFTER_EDIT_OTHER.send(oP.getPlayer());
                         }
                     }
                     //TODO IMPLEMENT blacklist configuration
                     if (!true)
                     {
-                        sendMessage("This item is untradable!");
+                        Message.ERR_UNTRADABLE.send(getPlayer());
                         event.setCancelled(true);
                     }
                 }
@@ -160,7 +159,7 @@ public class TradePlayer
                         return; // Player inv.
                     } else
                     {
-                        sendMessage("Un-confirm the trade before trying to make changes!");
+                        ERR_UNCONFIRM_BEFORE_EDIT.send(getPlayer());
                         event.setCancelled(true);
                     }
                 }
@@ -172,25 +171,24 @@ public class TradePlayer
                         if (!hasConfirmed())
                         {
                             closeTrade();
-                            sendMessage("You may now type the amount of currency you would like to remove or add to the trade.");
-                            sendMessage("I.E. -1000 is a removal of 1000 currency, while 1000 is an addition of 1000 currency.");
-                            sendMessage("After " + plugin.getCFG().getInt(RootNode.CURRENCY_TIMEOUT) + " seconds, the trade will resume. You can also re-open the trade window to manually cancel this.");
+                            MSG_CURRENCY_MODIFY_PART1.send(getPlayer());
+                            MSG_CURRENCY_MODIFY_PART2.send(getPlayer(), plugin.getCFG().getInt(RootNode.CURRENCY_TIMEOUT));
                             modCurrency = true;
                             currencyModifyTimer(plugin.getCFG().getInt(RootNode.CURRENCY_TIMEOUT));
                         } else
                         {
-                            sendMessage("Un-confirm the trade before trying to make changes!");
+                            ERR_UNCONFIRM_BEFORE_EDIT.send(getPlayer());
                             event.setCancelled(true);
                         }
                         if (oP.hasConfirmed())
                         {
                             oP.setConfirmed(false);
-                            sendMessage("Making a change while the other player is confirmed has automatically un-confirmed the other player.");
-                            oP.sendMessage("You have automatically un-confirmed due to the other player modifying their offer.");
+                            MSG_UNCONFIRM_AFTER_EDIT.send(getPlayer());
+                            MSG_UNCONFIRM_AFTER_EDIT_OTHER.send(oP.getPlayer());
                         }
                     } else
                     {
-                        sendMessage("You do not have the permission to trade currency.");
+                        ERR_NO_PERM_CURRENCY.send(getPlayer());
                     }
                 }
                 if (i != null)
@@ -259,8 +257,7 @@ public class TradePlayer
     public void cancelCurrencyModification()
     {
         modCurrency = false;
-        sendMessage("By re-opening the trade window, you have canceled the request to modify you offered currency.");
-        sendMessage("You can click on the emerald to modify currency once more.");
+        MSG_CURRENCY_CANCELED_REOPEN.send(getPlayer());
         plugin.getServer().getScheduler().cancelTask(taskId);
     }
 
@@ -304,7 +301,7 @@ public class TradePlayer
                 if (modCurrency)
                 {
                     modCurrency = false;
-                    sendMessage("The trade will now be resumed.");
+                    MSG_RESUME_TRADE.send(getPlayer());
                     plugin.getServer().getPlayer(playerName).openInventory(trade.getTradeInventory());
                 }
             }
@@ -326,12 +323,12 @@ public class TradePlayer
             trade.getTradeInventory().getItem(accSlot).setDurability((short) 5);
             if (trade.requested.equals(this))
             {
-                trade.requester.sendMessage(getName() + " has un-confirmed their offer.");
-                trade.requested.sendMessage("You have un-confirmed your offer.");
+                MSG_UNCONFIRM_OTHER.send(trade.requester.getPlayer(), getName());
+                MSG_UNCONFIRM.send(trade.requested.getPlayer());
             } else
             {
-                trade.requested.sendMessage(getName() + " has un-confirmed their offer.");
-                trade.requester.sendMessage("You have un-confirmed your offer.");
+                MSG_UNCONFIRM_OTHER.send(trade.requested.getPlayer(), getName());
+                MSG_UNCONFIRM.send(trade.requester.getPlayer());
             }
         } else
         {
@@ -340,8 +337,8 @@ public class TradePlayer
             {
                 if (!trade.requester.hasConfirmed())
                 {
-                    trade.requester.sendMessage(getName() + " has confirmed their offer.");
-                    trade.requested.sendMessage("You have confirmed your offer.");
+                    MSG_CONFIRM_OTHER.send(trade.requester.getPlayer(), getName());
+                    MSG_CONFIRM.send(trade.requested.getPlayer());
                 } else
                 {
                     trade.confirm();
@@ -350,8 +347,8 @@ public class TradePlayer
             {
                 if (!trade.requested.hasConfirmed())
                 {
-                    trade.requested.sendMessage(getName() + " has confirmed their offer.");
-                    trade.requester.sendMessage("You have confirmed your offer.");
+                    MSG_CONFIRM_OTHER.send(trade.requested.getPlayer(), getName());
+                    MSG_CONFIRM.send(trade.requester.getPlayer());
                 } else
                 {
                     trade.confirm();
@@ -418,17 +415,17 @@ public class TradePlayer
         {
             if (trade.requested.equals(this))
             {
-                trade.requester.sendMessage(getName() + " has canceled the trade! Reason: " + reason);
-                sendMessage("You have canceled the trade! Reason: " + reason);
+                MSG_TRADE_CANCEL_OTHER.send(trade.requester.getPlayer(), getName(), reason);
+                MSG_TRADE_CANCEL.send(getPlayer(), reason);
             } else
             {
-                trade.requested.sendMessage(getName() + " has canceled the trade! Reason: " + reason);
-                sendMessage("You have canceled the trade! Reason: " + reason);
+                MSG_TRADE_CANCEL_OTHER.send(trade.requested.getPlayer(), getName(), reason);
+                MSG_TRADE_CANCEL.send(getPlayer(), reason);
             }
         } else
         {
-            who.sendMessage("You have canceled the trade! Reason: " + reason);
-            sendMessage(who.getName() + " has canceled the trade! Reason: " + reason);
+            MSG_TRADE_CANCEL.send(who.getPlayer(), reason);
+            MSG_TRADE_CANCEL_OTHER.send(getPlayer(), who.getName(), reason);
         }
         if (!reason.contains("Died"))
         {
@@ -457,12 +454,6 @@ public class TradePlayer
     }
 
 
-    public void sendMessage(String msg)
-    {
-        plugin.getServer().getPlayer(playerName).sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + msg);
-    }
-
-
     public boolean isRequested()
     {
         if (requesterPlayer != null)
@@ -488,12 +479,12 @@ public class TradePlayer
             {
                 if (requestedPlayer != null)
                 {
-                    sendMessage("Your request to " + requestedPlayer.getName() + " has been declined. Reason: " + reason);
-                    requestedPlayer.sendMessage(getName() + "'s request has been declined. Reason: " + reason);
+                    MSG_TRADE_DECLINE.send(getPlayer(), requestedPlayer.getName(), reason);
+                    MSG_TRADE_DECLINE_OTHER.send(requestedPlayer.getPlayer(), getName(), reason);
                 } else
                 {
-                    requesterPlayer.sendMessage("Your request to " + getName() + " has been declined. Reason: " + reason);
-                    sendMessage(requesterPlayer.getName() + "'s request has been declined. Reason: " + reason);
+                    MSG_TRADE_DECLINE.send(requesterPlayer.getPlayer(), getName(), reason);
+                    MSG_TRADE_DECLINE_OTHER.send(getPlayer(), requesterPlayer.getName(), reason);
                 }
             }
             if (requestedPlayer != null)

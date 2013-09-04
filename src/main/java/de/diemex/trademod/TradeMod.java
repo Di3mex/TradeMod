@@ -3,6 +3,7 @@ package de.diemex.trademod;
 
 import de.diemex.trademod.config.RootConfig;
 import de.diemex.trademod.config.RootNode;
+import static de.diemex.trademod.Message.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -135,15 +136,15 @@ public class TradeMod extends JavaPlugin
                                                         TradePlayer p = new TradePlayer(this, cmdSender);
                                                         if (p.requestTrade(rP))
                                                         {
-                                                            rP.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
+                                                            MSG_TRADE_REQUEST.send(rP.getPlayer(), p.getName());
                                                             if (requestedPlayer.hasPermission("trademod.rightclickrequest") && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
-                                                                rP.sendMessage("You can also sneak and right click, while unarmed, the other player to accept the request.");
-                                                            p.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + CFG.getInt(RootNode.TIMEOUT) + " seconds");
+                                                                MSG_TRADE_REQUEST_RC_TIP.send(rP.getPlayer());
+                                                            MSG_TRADE_REQUEST_OTHER.send(p.getPlayer(), p.getName(), CFG.getInt(RootNode.TIMEOUT));
                                                         }
                                                     } else
                                                     {
-                                                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Creative trading is currently disabled. Currently, one of the players involved is in the Creative game mode. Switch to Survival to commence the trade.");
-                                                        requestedPlayer.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "Creative trading is currently disabled. Currently, one of the players involved is in the Creative game mode. Switch to Survival to commence the trade.");
+                                                        ERR_CREATIVE_TRADING_DISABLED.send(cmdSender);
+                                                        ERR_CREATIVE_TRADING_DISABLED.send(requestedPlayer);
                                                     }
                                                 } else
                                                 {
@@ -151,31 +152,31 @@ public class TradeMod extends JavaPlugin
                                                     TradePlayer p = new TradePlayer(this, cmdSender);
                                                     if (p.requestTrade(rP))
                                                     {
-                                                        rP.sendMessage(p.getName() + " would like to trade with you, type /tm acc to accept the request, or type /tm dec to decline it.");
+                                                        MSG_TRADE_REQUEST.send(rP.getPlayer(), p.getName());
                                                         if (requestedPlayer.hasPermission("trademod.rightclickrequest") && CFG.getBoolean(RootNode.SHIFT_RIGHT_INITIATE))
-                                                            rP.sendMessage("You can also sneak and right click, while unarmed, the other player to accept the request.");
-                                                        p.sendMessage("You have requested " + rP.getName() + " to trade with you. The request will automatically cancel in " + CFG.getInt(RootNode.TIMEOUT) + " seconds");
+                                                            MSG_TRADE_REQUEST_RC_TIP.send(rP.getPlayer());
+                                                        MSG_TRADE_REQUEST_OTHER.send(p.getPlayer(), p.getName(), CFG.getInt(RootNode.TIMEOUT));
                                                     }
                                                 }
                                             } else
                                             {
-                                                cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You need to be within " + radius + " blocks of that player!");
+                                                ERR_RADIUS_EXCEED.send(cmdSender, radius);
                                             }
                                         } else
                                         {
-                                            cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You are currently requested or in a trade.");
+                                            ERR_NO_TRADE.send(cmdSender);
                                         }
                                     } else
                                     {
-                                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + requestedPlayer.getName() + " is currently requested or in a trade.");
+                                        ERR_IN_TRADE.send(cmdSender, requestedPlayer.getName());
                                     }
                                 } else
                                 {
-                                    cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You cannot trade yourself!");
+                                    ERR_TRADE_WITH_SELF.send(cmdSender);
                                 }
                             } else
                             {
-                                cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "That player is offline.");
+                                ERR_OTHER_OFFLINE.send(cmdSender);
                             }
                         } else if (command.equalsIgnoreCase("acc") || command.equalsIgnoreCase("accept"))
                         {
@@ -185,12 +186,12 @@ public class TradeMod extends JavaPlugin
                                 if (rP.isRequested())
                                 {
                                     TradePlayer oP = rP.getRequester();
-                                    rP.sendMessage("You have accepted " + oP.getName() + "'s request to trade.");
-                                    oP.sendMessage(rP.getName() + " has accepted your request to trade.");
+                                    MSG_TRADE_ACCEPT.send(rP.getPlayer());
+                                    MSG_TRADE_ACCEPT_OTHER.send(oP.getPlayer());
                                     rP.acceptRequest(oP);
                                 } else
                                 {
-                                    rP.sendMessage("You have not been requested to trade with anyone!");
+                                    ERR_NO_TRADE.send(rP.getPlayer());
                                 }
                             } else
                             {
@@ -204,47 +205,47 @@ public class TradeMod extends JavaPlugin
                                 if (rP.isRequested())
                                 {
                                     TradePlayer oP = rP.getRequester();
-                                    rP.sendMessage("You have declined " + oP.getName() + "'s request to trade.");
-                                    oP.sendMessage(rP.getName() + " has declined your request to trade.");
+                                    MSG_TRADE_DECLINE.send(rP.getPlayer(), oP.getName(), "Manually declined");
+                                    MSG_TRADE_DECLINE.send(oP.getPlayer(), rP.getName(), "Manually declined");
                                     oP.cancelRequest(false, "Manually declined.");
                                 } else
                                 {
-                                    rP.sendMessage("You have not been requested to trade with anyone!");
+                                    ERR_NO_TRADE.send(rP.getPlayer());
                                 }
                             } else
                             {
-                                cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You have not been requested to trade with anyone!");
+                                ERR_NO_TRADE.send(cmdSender);
                             }
                         } else if (command.equalsIgnoreCase("open"))
                         {
-                            TradePlayer p = TradePlayer.getTradePlayer(cmdSender);
-                            if (p != null)
+                            TradePlayer tradePlayer = TradePlayer.getTradePlayer(cmdSender);
+                            if (tradePlayer != null)
                             {
-                                if (p.isInTrade())
+                                if (tradePlayer.isInTrade())
                                 {
-                                    if (p.tradeInv != null)
+                                    if (tradePlayer.tradeInv != null)
                                     {
                                         // p.openTrade(p.getTrade().getTradeInventory());
-                                        p.sendMessage("Re-opening trade screen.");
-                                        p.openTrade();
+                                        MSG_REOPEN_SCREEN.send(tradePlayer.getPlayer());
+                                        tradePlayer.openTrade();
                                     }
                                 }
                             }
                         } else if (command.equalsIgnoreCase("can") || command.equalsIgnoreCase("cancel"))
                         {
-                            TradePlayer rP = TradePlayer.getTradePlayer(cmdSender);
-                            if (rP != null)
+                            TradePlayer tradePlayer = TradePlayer.getTradePlayer(cmdSender);
+                            if (tradePlayer != null)
                             {
-                                if (rP.isInTrade())
+                                if (tradePlayer.isInTrade())
                                 {
-                                    rP.cancelTrade(rP, "Manually canceled.");
+                                    tradePlayer.cancelTrade(tradePlayer, "Manually canceled.");
                                 } else
                                 {
-                                    cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You are not currently in a trade!");
+                                    ERR_NO_TRADE.send(cmdSender);
                                 }
                             } else
                             {
-                                cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You are not currently in a trade!");
+                                ERR_NO_TRADE.send(cmdSender);
                             }
                         } else if (command.equalsIgnoreCase("con") || command.equalsIgnoreCase("confirm"))
                         {
@@ -262,7 +263,7 @@ public class TradeMod extends JavaPlugin
                                     }
                                 } else
                                 {
-                                    cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You are not currently in a trade!");
+                                    ERR_NO_TRADE.send(cmdSender);
                                 }
                             } else
                             {
@@ -296,35 +297,35 @@ public class TradeMod extends JavaPlugin
                                                                 t.addCurrency(rP, amount);
                                                             } else
                                                             {
-                                                                rP.sendMessage("You do not have " + amount + " " + economy.currencyNameSingular() + "!");
+                                                                ERR_NOT_ENOUGH_CURRENCY.send(rP.getPlayer(), amount, economy.currencyNameSingular());
                                                             }
                                                         } else
                                                         {
-                                                            rP.sendMessage("You do not have any " + economy.currencyNameSingular() + "!");
+                                                            ERR_NO_CURRENCY.send(rP.getPlayer(), economy.currencyNameSingular());
                                                         }
                                                     } else
                                                     {
-                                                        rP.sendMessage("This server does not support currency in trades!");
+                                                        ERR_NO_ECONOMY_ACTIVE.send(rP.getPlayer());
                                                     }
                                                 } else
                                                 {
-                                                    rP.sendMessage(args[1] + " is an incorrect amount! It must be a number higher than 0.");
+                                                    ERR_CURRENCY_INVALID_NEG.send(rP.getPlayer(), args[1]);
                                                 }
                                             } else
                                             {
-                                                rP.sendMessage("You must un-confirm your offer first. (/tm con)");
+                                                ERR_UNCONFIRM_BEFORE_EDIT.send(rP.getPlayer());
                                             }
                                         } else
                                         {
-                                            rP.sendMessage("You need to be in a trade first!");
+                                            ERR_NO_TRADE.send(rP.getPlayer());
                                         }
                                     } else
                                     {
-                                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You need to be requested or in a trade.");
+                                        ERR_NO_TRADE.send(cmdSender);
                                     }
                                 } else
                                 {
-                                    cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You need to follow this syntax: /tm addc AMOUNT");
+                                    ERR_CURRENCY_WRONG_SYNTAX.send(cmdSender);
                                 }
                             } else
                             {
@@ -356,36 +357,36 @@ public class TradeMod extends JavaPlugin
                                                         }
                                                     } else
                                                     {
-                                                        rP.sendMessage("This server does not support currency in trades!");
+                                                        ERR_NO_ECONOMY_ACTIVE.send(rP.getPlayer());
                                                     }
                                                 } else
                                                 {
-                                                    rP.sendMessage(args[1] + " is an incorrect amount! It must be a number higher than 0.");
+                                                    ERR_CURRENCY_INVALID_NEG.send(rP.getPlayer());
                                                 }
                                             } else
                                             {
-                                                rP.sendMessage("You must un-confirm your offer first. (/tm con)");
+                                                ERR_UNCONFIRM_BEFORE_EDIT.send(rP.getPlayer());
                                             }
                                         } else
                                         {
-                                            rP.sendMessage("You need to be in a trade first!");
+                                            ERR_NO_TRADE.send(rP.getPlayer());
                                         }
                                     } else
                                     {
-                                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You need to be requested or in a trade.");
+                                        ERR_NO_TRADE.send(cmdSender);
                                     }
                                 } else
                                 {
-                                    cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "You need to follow this syntax: /tm remc AMOUNT");
+                                    ERR_CURRENCY_WRONG_SYNTAX.send(cmdSender);
                                 }
                             } else
                             {
-                                cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.RED + "You do not have permission!");
+                                ERR_NO_PERM_CURRENCY.send(cmdSender);
                             }
                         }
                     } else
                     {
-                        cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.RED + "You do not have permission to trade!");
+                        ERR_NO_PERM_TRADE.send(cmdSender);
                     }
                     if (command.equalsIgnoreCase("help"))
                     {
@@ -399,7 +400,7 @@ public class TradeMod extends JavaPlugin
                         cmdSender.sendMessage(ChatColor.GREEN + "[TM] " + ChatColor.GOLD + "I can request another person to trade by right-clicking them while sneaking: " + Boolean.toString(cmdSender.hasPermission("trademod.rightclickrequest")));
                     }
                 }
-            } catch (Exception e)
+            } catch (Exception e) //TODO WHAT?!
             {
             }
             return true;
